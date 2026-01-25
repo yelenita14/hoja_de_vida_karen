@@ -27,8 +27,9 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-gn&ae8wk1xd+0s@z3dpj_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-LOGIN_URL = 'login'
-LOGOUT_REDIRECT_URL = 'mi_hoja_vida'
+LOGIN_REDIRECT_URL = '/panel-admin/'
+LOGOUT_REDIRECT_URL = '/login/'
+
 
 # Configuración de acceso público a la hoja de vida
 ALLOWED_HOSTS = [
