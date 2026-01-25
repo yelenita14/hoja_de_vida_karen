@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Venta</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <h1>Editar Venta</h1>
+    <a href="{% url 'panel_admin' %}" class="logout-btn">Volver</a>
+</div>
+
+<div class="container">
+    <div class="seccion card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- nombre producto -->
+            <div class="form-group">
+                <label>Nombre del producto</label>
+                <input type="text" name="nombreproducto"
+                       value="{{ venta.nombreproducto }}" required>
+            </div>
+
+            <!-- estado producto -->
+            <div class="form-group">
+                <label>Estado del producto</label>
+                <select name="estadoproducto" required>
+                    <option value="Bueno" {% if venta.estadoproducto == "Bueno" %}selected{% endif %}>Bueno</option>
+                    <option value="Regular" {% if venta.estadoproducto == "Regular" %}selected{% endif %}>Regular</option>
+                    <option value="Malo" {% if venta.estadoproducto == "Malo" %}selected{% endif %}>Malo</option>
+                </select>
+            </div>
+
+            <!-- valor -->
+            <div class="form-group">
+                <label>Valor del bien ($)</label>
+                <input type="number" name="valordelbien"
+                       step="0.01"
+                       value="{{ venta.valordelbien }}">
+            </div>
+
+            <!-- descripción -->
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea name="descripcion" rows="4">{{ venta.descripcion }}</textarea>
+            </div>
+
+            <!-- imagen -->
+            <div class="form-group">
+                <label>Imagen del producto</label>
+                {% if venta.imagen %}
+                    <p><small>Imagen actual:</small></p>
+                    <img src="{{ venta.imagen.url }}" style="max-width: 200px; margin: 0.5rem 0; border-radius: 8px;">
+                {% endif %}
+                <input type="file" name="imagen" accept="image/*">
+            </div>
+
+            <!-- fecha publicación -->
+            <div class="form-group">
+                <label>Fecha de publicación</label>
+                <input type="date" name="fechapublicacion"
+                       value="{% if venta.fechapublicacion %}{{ venta.fechapublicacion|date:'Y-m-d' }}{% endif %}">
+            </div>
+
+            <!-- visible en front -->
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="activarparaqueseveaenfront"
+                           {% if venta.activarparaqueseveaenfront %}checked{% endif %}>
+                    Mostrar en la hoja de vida
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Actualizar Venta
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

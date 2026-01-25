@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reconocimiento</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <h1>Reconocimiento</h1>
+    <a href="{% url 'panel_admin' %}" class="logout-btn">Volver</a>
+</div>
+
+<div class="container">
+    <div class="seccion card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- tipo de reconocimiento -->
+            <div class="form-group">
+                <label>Tipo de reconocimiento</label>
+                <select name="tiporeconocimiento" required title="Seleccione el tipo de reconocimiento">
+                    <option value="">Seleccione</option>
+                    <option value="Académico">Académico</option>
+                    <option value="Público">Público</option>
+                    <option value="Privado">Privado</option>
+                </select>
+            </div>
+
+            <!-- entidad patrocinadora -->
+            <div class="form-group">
+                <label>Entidad patrocinadora</label>
+                <input type="text" name="entidadpatrocinadora" placeholder="Ingrese la entidad patrocinadora" title="Entidad patrocinadora">
+            </div>
+
+            <!-- fecha -->
+            <div class="form-group">
+                <label>Fecha del reconocimiento</label>
+                <input type="date" name="fechareconocimiento" title="Fecha del reconocimiento">
+            </div>
+
+            <!-- descripción -->
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea name="descripcionreconocimiento" rows="4" placeholder="Ingrese la descripción" title="Descripción del reconocimiento"></textarea>
+            </div>
+
+            <!-- contacto (opcional, muy pro) -->
+            <div class="form-group">
+                <label>Nombre contacto (opcional)</label>
+                <input type="text" name="nombrecontactoauspicia" placeholder="Nombre contacto" title="Nombre del contacto">
+            </div>
+
+            <div class="form-group">
+                <label>Teléfono contacto (opcional)</label>
+                <input type="text" name="telefonocontactoauspicia" placeholder="Teléfono contacto" title="Teléfono del contacto">
+            </div>
+
+            <!-- certificado -->
+            <div class="form-group">
+                <label>Certificado (archivo)</label>
+                <input type="file" name="archivo_certificado" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" title="Carga tu certificado">
+            </div>
+
+            <!-- visible en front -->
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="activarparaqueseveaenfront" checked>
+                    Mostrar en la hoja de vida
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Guardar Reconocimiento
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Producto Académico</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <h1>Agregar Producto Académico</h1>
+    <a href="{% url 'panel_admin' %}" class="logout-btn">Volver</a>
+</div>
+
+<div class="container">
+    <div class="seccion card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label>Nombre del Producto</label>
+                <input type="text" name="nombreproducto" required>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de Producto</label>
+                <select name="tiposproducto" required>
+                    <option value="">Seleccione</option>
+                    <option value="Artículo">Artículo</option>
+                    <option value="Investigación">Investigación</option>
+                    <option value="Proyecto">Proyecto</option>
+                    <option value="Tesis">Tesis</option>
+                    <option value="Libro">Libro</option>
+                    <option value="Presentación">Presentación</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de Publicación</label>
+                <input type="date" name="fechapublicacion">
+            </div>
+
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea name="descripcion"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Enlace (URL)</label>
+                <input type="url" name="enlace">
+            </div>
+
+            <div class="form-group">
+                <label>Archivo</label>
+                <input type="file" name="archivo" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="activarparaqueseveaenfront" checked>
+                    Mostrar en la hoja de vida
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

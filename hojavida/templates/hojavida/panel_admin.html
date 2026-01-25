@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Administración</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body class="admin-page">
+
+<header class="cv-header">
+    <div>
+        <h1>Panel de Administración</h1>
+        <p class="cv-subtitle">Gestión de Hoja de Vida Profesional</p>
+    </div>
+    <a href="{% url 'logout' %}" class="btn-header admin">Cerrar sesión</a>
+</header>
+
+<main class="container">
+
+    <section class="welcome-card">
+        <h2>Hola, {{ user.username }} 👋</h2>
+        <p>
+            Bienvenida a tu panel de control.  
+            Desde aquí puedes administrar toda la información de tu hoja de vida.
+        </p>
+    </section>
+
+    <section class="admin-grid">
+
+        <!-- DATOS PERSONALES -->
+        <div class="card">
+            <h3>Datos Personales</h3>
+            <p>Información básica y de contacto.</p>
+            <div class="btn-group">
+                <a href="{% url 'agregar_datos' %}" class="btn btn-primary">Agregar</a>
+                <a href="{% url 'editar_datos' %}" class="btn btn-secondary">Editar</a>
+            </div>
+        </div>
+
+        <!-- EXPERIENCIA -->
+        <div class="card">
+            <h3>Experiencia Laboral</h3>
+            <p>Registra tu experiencia profesional.</p>
+            <div class="btn-group">
+                <a href="{% url 'agregar_experiencia' %}" class="btn btn-primary">Agregar</a>
+            </div>
+            {% if experiencias %}
+            <div style="margin-top: 15px;">
+                <p><strong>Selecciona una experiencia para editar:</strong></p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for exp in experiencias %}
+                    <a href="{% url 'editar_experiencia_laboral' exp.idexperiencia %}" class="btn btn-secondary" style="text-align: left;">
+                        {{ exp.cargo }} - {{ exp.empresa }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- EDUCACIÓN -->
+        <div class="card">
+            <h3>Educación</h3>
+            <p>Cursos, capacitaciones y certificados.</p>
+            <div class="btn-group">
+                <a href="{% url 'agregar_curso' %}" class="btn btn-primary">Agregar</a>
+            </div>
+            {% if cursos %}
+            <div style="margin-top: 15px;">
+                <p><strong>Selecciona un curso para editar:</strong></p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for curso in cursos %}
+                    <a href="{% url 'editar_curso' curso.idcurso %}" class="btn btn-secondary" style="text-align: left;">
+                        {{ curso.nombrecurso }} - {{ curso.entidadpatrocinadora }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- PRODUCTOS ACADÉMICOS -->
+        <div class="card">
+            <h3>Productos Académicos</h3>
+            <p>Publicaciones y trabajos académicos.</p>
+            <div class="btn-group">
+                <a href="{% url 'agregar_producto_academico' %}" class="btn btn-primary">Agregar</a>
+            </div>
+            {% if productos_academicos %}
+            <div style="margin-top: 15px;">
+                <p><strong>Selecciona un producto para editar:</strong></p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for prod in productos_academicos %}
+                    <a href="{% url 'editar_producto_academico' prod.idproducto %}" class="btn btn-secondary" style="text-align: left;">
+                        {{ prod.nombreproducto }} - {{ prod.tiposproducto }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- PRODUCTOS LABORALES -->
+        <div class="card">
+            <h3>Productos Laborales</h3>
+            <p>Proyectos y trabajos realizados.</p>
+            <div class="btn-group">
+                <a href="{% url 'agregar_producto_laboral' %}" class="btn btn-primary">Agregar</a>
+            </div>
+            {% if productos_laborales %}
+            <div style="margin-top: 15px;">
+                <p><strong>Selecciona un producto para editar:</strong></p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for prod in productos_laborales %}
+                    <a href="{% url 'editar_producto_laboral' prod.idproducto %}" class="btn btn-secondary" style="text-align: left;">
+                        {{ prod.nombreproducto }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- RECONOCIMIENTOS -->
+        <div class="card">
+            <h3>Reconocimientos</h3>
+            <p>Premios y distinciones obtenidas.</p>
+            <div class="btn-group">
+                <a href="{% url 'agregar_reconocimiento' %}" class="btn btn-primary">Agregar</a>
+            </div>
+            {% if reconocimientos %}
+            <div style="margin-top: 15px;">
+                <p><strong>Selecciona un reconocimiento para editar:</strong></p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for rec in reconocimientos %}
+                    <a href="{% url 'editar_reconocimiento' rec.idreconocimiento %}" class="btn btn-secondary" style="text-align: left;">
+                        {{ rec.tiporeconocimiento }} - {{ rec.entidadpatrocinadora }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- VENTAS -->
+        <div class="card">
+            <h3>Ventas</h3>
+            <p>Gestión de ventas tipo garage.</p>
+            <div class="btn-group">
+                <a href="{% url 'agregar_venta' %}" class="btn btn-primary">Agregar</a>
+            </div>
+            {% if ventas %}
+            <div style="margin-top: 15px;">
+                <p><strong>Selecciona una venta para editar:</strong></p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for venta in ventas %}
+                    <a href="{% url 'editar_venta' venta.idventa %}" class="btn btn-secondary" style="text-align: left;">
+                        {{ venta.nombreproducto }} - ${{ venta.valordelbien }} ({{ venta.estadoproducto }})
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- VISTA PREVIA -->
+        <div class="card highlight">
+            <h3>Vista Previa</h3>
+            <p>Visualiza tu hoja de vida pública.</p>
+            <div class="btn-group">
+                <a href="{% url 'mi_hoja_vida' %}" class="btn btn-primary">Ver CV</a>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+</body>
+</html>

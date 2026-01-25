@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Reconocimiento</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <h1>Editar Reconocimiento</h1>
+    <a href="{% url 'panel_admin' %}" class="logout-btn">Volver</a>
+</div>
+
+<div class="container">
+    <div class="seccion card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- tipo reconocimiento -->
+            <div class="form-group">
+                <label>Tipo de reconocimiento</label>
+                <select name="tiporeconocimiento" required>
+                    <option value="Académico" {% if reconocimiento.tiporeconocimiento == "Académico" %}selected{% endif %}>Académico</option>
+                    <option value="Público" {% if reconocimiento.tiporeconocimiento == "Público" %}selected{% endif %}>Público</option>
+                    <option value="Privado" {% if reconocimiento.tiporeconocimiento == "Privado" %}selected{% endif %}>Privado</option>
+                </select>
+            </div>
+
+            <!-- entidad -->
+            <div class="form-group">
+                <label>Entidad patrocinadora</label>
+                <input type="text" name="entidadpatrocinadora"
+                       value="{{ reconocimiento.entidadpatrocinadora }}">
+            </div>
+
+            <!-- fecha -->
+            <div class="form-group">
+                <label>Fecha del reconocimiento</label>
+                <input type="date" name="fechareconocimiento"
+                       value="{{ reconocimiento.fechareconocimiento|date:'Y-m-d' }}">
+            </div>
+
+            <!-- descripción -->
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea name="descripcionreconocimiento" rows="4">{{ reconocimiento.descripcionreconocimiento }}</textarea>
+            </div>
+
+            <!-- contacto -->
+            <div class="form-group">
+                <label>Nombre contacto</label>
+                <input type="text" name="nombrecontactoauspicia"
+                       value="{{ reconocimiento.nombrecontactoauspicia }}">
+            </div>
+
+            <div class="form-group">
+                <label>Teléfono contacto</label>
+                <input type="text" name="telefonocontactoauspicia"
+                       value="{{ reconocimiento.telefonocontactoauspicia }}">
+            </div>
+
+            <!-- certificado -->
+            <div class="form-group">
+                <label>Certificado (archivo)</label>
+                {% if reconocimiento.archivo_certificado %}
+                    <p><a href="{{ reconocimiento.archivo_certificado.url }}" target="_blank">Descargar archivo actual</a></p>
+                {% endif %}
+                <input type="file" name="archivo_certificado" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+            </div>
+
+            <!-- visible en front -->
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="activarparaqueseveaenfront"
+                           {% if reconocimiento.activarparaqueseveaenfront %}checked{% endif %}>
+                    Mostrar en la hoja de vida
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Actualizar Reconocimiento
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

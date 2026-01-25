@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Hoja de Vida Profesional</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="cv-header">
+    <div>
+        <h1>Mi Hoja de Vida Profesional</h1>
+    </div>
+    {% if not es_pdf %}
+    <div class="cv-actions">
+        <a href="{% url 'panel_admin' %}" class="btn-header admin">Panel Admin</a>
+        <a href="{% url 'descargar_cv_pdf' %}" class="btn btn-primary">Descargar PDF</a>
+    </div>
+    {% endif %}
+</header>
+
+<div class="cv-container">
+
+<!-- DATOS PERSONALES -->
+<div class="card perfil">
+    {% if datos.foto %}
+        <img src="{{ datos.foto.url }}" class="foto-perfil">
+    {% else %}
+        <div class="foto-perfil" style="background-color: #ddd; display: flex; align-items: center; justify-content: center; color: #999;">
+            Sin foto
+        </div>
+    {% endif %}
+
+    <h2>{{ datos.nombres }} {{ datos.apellidos }}</h2>
+
+    <ul class="info-list">
+        {% if datos.numerocedula %}
+            <li><strong>Cédula:</strong> {{ datos.numerocedula }}</li>
+        {% endif %}
+        {% if datos.nacionalidad %}
+            <li><strong>Nacionalidad:</strong> {{ datos.nacionalidad }}</li>
+        {% endif %}
+        {% if datos.lugarnacimiento %}
+            <li><strong>Lugar de nacimiento:</strong> {{ datos.lugarnacimiento }}</li>
+        {% endif %}
+        {% if datos.fechanacimiento %}
+            <li><strong>Fecha de nacimiento:</strong> {{ datos.fechanacimiento|date:"d/m/Y" }}</li>
+        {% endif %}
+        {% if datos.sexo %}
+            <li><strong>Sexo:</strong> {{ datos.get_sexo_display }}</li>
+        {% endif %}
+        {% if datos.estadocivil %}
+            <li><strong>Estado civil:</strong> {{ datos.estadocivil }}</li>
+        {% endif %}
+        {% if datos.licenciaconducir %}
+            <li><strong>Licencia de conducir:</strong> {{ datos.licenciaconducir }}</li>
+        {% endif %}
+        {% if datos.telefonoconvencional %}
+            <li><strong>Teléfono convencional:</strong> {{ datos.telefonoconvencional }}</li>
+        {% endif %}
+        {% if datos.telefonofijo %}
+            <li><strong>Teléfono fijo:</strong> {{ datos.telefonofijo }}</li>
+        {% endif %}
+        {% if datos.direcciontrabajo %}
+            <li><strong>Dirección de trabajo:</strong> {{ datos.direcciontrabajo }}</li>
+        {% endif %}
+        {% if datos.direcciondomiciliaria %}
+            <li><strong>Dirección domiciliaria:</strong> {{ datos.direcciondomiciliaria }}</li>
+        {% endif %}
+        {% if datos.sitioweb %}
+            <li><strong>Sitio web:</strong> {{ datos.sitioweb }}</li>
+        {% endif %}
+    </ul>
+</div>
+
+<!-- EXPERIENCIA LABORAL -->
+{% if experiencias and datos.mostrar_experiencia %}
+<div class="card">
+    <h3>Experiencia Laboral</h3>
+    {% for e in experiencias %}
+        <div class="item">
+            <h4>{{ e.cargo }}</h4>
+            <span>{{ e.empresa }} | {{ e.fechainicio }} - {{ e.fechafin|default:"Actual" }}</span>
+            <p>{{ e.descripcion }}</p>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- CURSOS -->
+{% if cursos and datos.mostrar_cursos %}
+<div class="card">
+    <h3>Capacitaciones</h3>
+    {% for c in cursos %}
+        <div class="item">
+            <strong>{{ c.nombrecurso }}</strong> – {{ c.entidadpatrocinadora }}
+            {% if c.fechainicio %}
+                <br><small>{{ c.fechainicio|date:"d/m/Y" }}
+                {% if c.fechafin %}- {{ c.fechafin|date:"d/m/Y" }}{% endif %}</small>
+            {% endif %}
+            {% if c.descripcion %}
+                <p>{{ c.descripcion }}</p>
+            {% endif %}
+            {% if c.archivo_certificado %}
+                <a href="{{ c.archivo_certificado.url }}" target="_blank">📄 Descargar certificado</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- RECONOCIMIENTOS -->
+{% if reconocimientos and datos.mostrar_reconocimientos %}
+<div class="card">
+    <h3>Reconocimientos</h3>
+    {% for r in reconocimientos %}
+        <div class="item">
+            <strong>{{ r.tiporeconocimiento }}</strong> – {{ r.entidadpatrocinadora }}
+            {% if r.fechareconocimiento %}
+                <br><small>{{ r.fechareconocimiento|date:"d/m/Y" }}</small>
+            {% endif %}
+            {% if r.descripcionreconocimiento %}
+                <p>{{ r.descripcionreconocimiento }}</p>
+            {% endif %}
+            {% if r.archivo_certificado %}
+                <a href="{{ r.archivo_certificado.url }}" target="_blank">📄 Descargar certificado</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- PRODUCTOS ACADÉMICOS -->
+{% if productos_academicos and datos.mostrar_productos_academicos %}
+<div class="card">
+    <h3>Productos Académicos</h3>
+    {% for p in productos_academicos %}
+        <div class="item">
+            <strong>{{ p.nombreproducto }}</strong> – {{ p.tiposproducto }}
+            {% if p.fechapublicacion %}
+                <br><small>Publicado: {{ p.fechapublicacion|date:"d/m/Y" }}</small>
+            {% endif %}
+            {% if p.descripcion %}
+                <p>{{ p.descripcion }}</p>
+            {% endif %}
+            {% if p.enlace %}
+                <a href="{{ p.enlace }}" target="_blank">🔗 Ver más</a>
+            {% endif %}
+            {% if p.archivo %}
+                <a href="{{ p.archivo.url }}" target="_blank">📄 Descargar archivo</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- PRODUCTOS LABORALES -->
+{% if productos_laborales and datos.mostrar_productos_laborales %}
+<div class="card">
+    <h3>Productos Laborales</h3>
+    {% for pl in productos_laborales %}
+        <div class="item">
+            <strong>{{ pl.nombreproducto }}</strong>
+            {% if pl.descripcion %}
+                <p>{{ pl.descripcion }}</p>
+            {% endif %}
+            {% if pl.enlace %}
+                <a href="{{ pl.enlace }}" target="_blank">🔗 Ver más</a>
+            {% endif %}
+            {% if pl.archivo %}
+                <a href="{{ pl.archivo.url }}" target="_blank">📄 Descargar archivo</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- VENTA GARAGE -->
+{% if ventas and datos.mostrar_ventas %}
+<div class="card">
+    <h3>Venta Garage</h3>
+    {% for v in ventas %}
+        <div class="item">
+            <h4>{{ v.nombreproducto }}</h4>
+            {% if v.imagen %}
+                <img src="{{ v.imagen.url }}" alt="{{ v.nombreproducto }}" class="producto-imagen">
+            {% endif %}
+            <strong>Precio:</strong> ${{ v.valordelbien }}<br>
+            {% if v.estadoproducto == "Bueno" %}
+                <span class="estado-bueno">{{ v.estadoproducto }}</span>
+            {% elif v.estadoproducto == "Regular" %}
+                <span class="estado-regular">{{ v.estadoproducto }}</span>
+            {% else %}
+                <span style="display: inline-block; background: #f8d7da; color: #721c24; padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; margin-top: 0.5rem;">{{ v.estadoproducto }}</span>
+            {% endif %}
+            {% if v.fechapublicacion %}
+                <div class="fecha-publicacion">Publicado: {{ v.fechapublicacion|date:"d/m/Y" }}</div>
+            {% endif %}
+            {% if v.descripcion %}
+                <p>{{ v.descripcion }}</p>
+            {% endif %}
+            {% if v.archivo %}
+                <a href="{{ v.archivo.url }}" target="_blank">📄 Descargar archivo</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+</div>
+
+</body>
+</html>

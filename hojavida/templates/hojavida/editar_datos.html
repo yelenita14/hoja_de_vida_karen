@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Datos Personales</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <h1>Editar Datos Personales</h1>
+    <a href="{% url 'panel_admin' %}" class="logout-btn">Volver</a>
+</div>
+
+<div class="container">
+    <div class="seccion card">
+        {% if error %}
+            <div style="background-color: #f8d7da; color: #721c24; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #f5c6cb;">
+                <strong>Error:</strong> {{ error }}
+            </div>
+        {% endif %}
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- foto -->
+            <div class="form-group">
+                <label>Foto de perfil</label>
+                {% if datos.foto %}
+                    <div style="margin-bottom: 10px;">
+                        <img src="{{ datos.foto.url }}" alt="Foto actual" style="max-width: 200px; border-radius: 10px;">
+                    </div>
+                {% endif %}
+                <input type="file" name="foto" accept="image/*">
+            </div>
+
+            <!-- nombres -->
+            <div class="form-group">
+                <label>Nombres</label>
+                <input type="text" name="nombres"
+                       value="{{ datos.nombres }}" required>
+            </div>
+
+            <!-- apellidos -->
+            <div class="form-group">
+                <label>Apellidos</label>
+                <input type="text" name="apellidos"
+                       value="{{ datos.apellidos }}" required>
+            </div>
+
+            <!-- nacionalidad -->
+            <div class="form-group">
+                <label>Nacionalidad</label>
+                <input type="text" name="nacionalidad"
+                       value="{{ datos.nacionalidad }}">
+            </div>
+
+            <!-- lugar nacimiento -->
+            <div class="form-group">
+                <label>Lugar de nacimiento</label>
+                <input type="text" name="lugarnacimiento"
+                       value="{{ datos.lugarnacimiento }}">
+            </div>
+
+            <!-- fecha nacimiento -->
+            <div class="form-group">
+                <label>Fecha de nacimiento</label>
+                <input type="date" name="fechanacimiento"
+                       value="{{ datos.fechanacimiento|date:'Y-m-d' }}">
+            </div>
+
+            <!-- cédula -->
+            <div class="form-group">
+                <label>Número de cédula</label>
+                <input type="text" name="numerocedula"
+                       value="{{ datos.numerocedula }}" maxlength="10">
+            </div>
+
+            <!-- sexo -->
+            <div class="form-group">
+                <label>Sexo</label>
+                <select name="sexo">
+                    <option value="">Seleccione</option>
+                    <option value="M" {% if datos.sexo == 'M' %}selected{% endif %}>Mujer</option>
+                    <option value="H" {% if datos.sexo == 'H' %}selected{% endif %}>Hombre</option>
+                </select>
+            </div>
+
+            <!-- estado civil -->
+            <div class="form-group">
+                <label>Estado civil</label>
+                <input type="text" name="estadocivil"
+                       value="{{ datos.estadocivil }}">
+            </div>
+
+            <!-- licencia -->
+            <div class="form-group">
+                <label>Licencia de conducir</label>
+                <input type="text" name="licenciaconducir"
+                       value="{{ datos.licenciaconducir }}">
+            </div>
+
+            <!-- teléfono -->
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="text" name="telefonofijo"
+                       value="{{ datos.telefonofijo }}">
+            </div>
+
+            <!-- dirección -->
+            <div class="form-group">
+                <label>Dirección domiciliaria</label>
+                <input type="text" name="direcciondomiciliaria"
+                       value="{{ datos.direcciondomiciliaria }}">
+            </div>
+
+            <!-- sitio web -->
+            <div class="form-group">
+                <label>Sitio web</label>
+                <input type="text" name="sitioweb"
+                       value="{{ datos.sitioweb }}">
+            </div>
+
+            <hr style="margin: 2rem 0; border: none; border-top: 1px solid #ddd;">
+            <h3 style="margin-bottom: 1rem;">Visibilidad de secciones en la hoja de vida</h3>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="mostrar_experiencia" {% if datos.mostrar_experiencia %}checked{% endif %}>
+                    Mostrar Experiencia Laboral
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="mostrar_cursos" {% if datos.mostrar_cursos %}checked{% endif %}>
+                    Mostrar Capacitaciones y Cursos
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="mostrar_reconocimientos" {% if datos.mostrar_reconocimientos %}checked{% endif %}>
+                    Mostrar Reconocimientos
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="mostrar_productos_academicos" {% if datos.mostrar_productos_academicos %}checked{% endif %}>
+                    Mostrar Productos Académicos
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="mostrar_productos_laborales" {% if datos.mostrar_productos_laborales %}checked{% endif %}>
+                    Mostrar Productos Laborales
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="mostrar_ventas" {% if datos.mostrar_ventas %}checked{% endif %}>
+                    Mostrar Venta Garage
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Actualizar Datos
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Validar que la fecha de nacimiento no sea en el futuro
+    document.querySelector('input[name="fechanacimiento"]').max = new Date().toISOString().split('T')[0];
+</script>
+
+</body>
+</html>

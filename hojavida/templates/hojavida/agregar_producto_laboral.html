@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Producto laboral</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <h1>Producto laboral</h1>
+    <a href="{% url 'panel_admin' %}" class="logout-btn">Volver</a>
+</div>
+
+<div class="container">
+    <div class="seccion card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- nombre del producto -->
+            <div class="form-group">
+                <label>Nombre del producto</label>
+                <input type="text" name="nombreproducto" required>
+            </div>
+
+            <!-- descripción -->
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea name="descripcion" rows="4"></textarea>
+            </div>
+
+            <!-- enlace -->
+            <div class="form-group">
+                <label>Enlace (URL)</label>
+                <input type="url" name="enlace">
+            </div>
+
+            <!-- archivo -->
+            <div class="form-group">
+                <label>Archivo</label>
+                <input type="file" name="archivo">
+            </div>
+
+            <!-- visible en front -->
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="activarparaqueseveaenfront" checked>
+                    Mostrar en la hoja de vida
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Guardar Producto Laboral
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

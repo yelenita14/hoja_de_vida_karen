@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Venta Garage</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <h1>Venta Garage</h1>
+    <a href="{% url 'panel_admin' %}" class="logout-btn">Volver</a>
+</div>
+
+<div class="container">
+    <div class="seccion card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- nombre producto -->
+            <div class="form-group">
+                <label>Nombre del producto</label>
+                <input type="text" name="nombreproducto" required>
+            </div>
+
+            <!-- estado producto -->
+            <div class="form-group">
+                <label>Estado del producto</label>
+                <select name="estadoproducto" required>
+                    <option value="">Seleccione</option>
+                    <option value="Bueno">Bueno</option>
+                    <option value="Regular">Regular</option>
+                </select>
+            </div>
+
+            <!-- valor -->
+            <div class="form-group">
+                <label>Valor del bien</label>
+                <input type="number" name="valordelbien" step="0.01">
+            </div>
+
+            <!-- descripción -->
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea name="descripcion" rows="4"></textarea>
+            </div>
+
+            <!-- imagen -->
+            <div class="form-group">
+                <label>Imagen del producto</label>
+                <input type="file" name="imagen" accept="image/*">
+            </div>
+
+            <!-- fecha publicación -->
+            <div class="form-group">
+                <label>Fecha de publicación</label>
+                <input type="date" name="fechapublicacion">
+            </div>
+
+            <!-- visible en front -->
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="activarparaqueseveaenfront" checked>
+                    Mostrar en el front
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Guardar Venta
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

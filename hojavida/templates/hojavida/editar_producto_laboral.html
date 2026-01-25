@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Producto Laboral</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <h1>Editar Producto Laboral</h1>
+    <a href="{% url 'panel_admin' %}" class="logout-btn">Volver</a>
+</div>
+
+<div class="container">
+    <div class="seccion card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- nombre producto -->
+            <div class="form-group">
+                <label>Nombre del producto</label>
+                <input type="text" name="nombreproducto"
+                       value="{{ producto.nombreproducto }}" required>
+            </div>
+
+            <!-- descripción -->
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea name="descripcion" rows="4">{{ producto.descripcion }}</textarea>
+            </div>
+
+            <!-- enlace -->
+            <div class="form-group">
+                <label>Enlace (URL)</label>
+                <input type="url" name="enlace"
+                       value="{{ producto.enlace }}">
+            </div>
+
+            <!-- archivo -->
+            <div class="form-group">
+                <label>Archivo</label>
+                {% if producto.archivo %}
+                    <p><a href="{{ producto.archivo.url }}" target="_blank">Descargar archivo actual</a></p>
+                {% endif %}
+                <input type="file" name="archivo">
+            </div>
+
+            <!-- visible en front -->
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="activarparaqueseveaenfront"
+                           {% if producto.activarparaqueseveaenfront %}checked{% endif %}>
+                    Mostrar en la hoja de vida
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Actualizar Producto Laboral
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

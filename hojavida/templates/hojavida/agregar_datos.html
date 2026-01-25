@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Datos Personales</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <h1>Datos Personales</h1>
+    <a href="{% url 'panel_admin' %}" class="logout-btn">Volver</a>
+</div>
+
+<div class="container">
+    <div class="seccion card">
+        {% if error %}
+            <div style="background-color: #f8d7da; color: #721c24; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #f5c6cb;">
+                <strong>Error:</strong> {{ error }}
+            </div>
+        {% endif %}
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label>Foto de perfil</label>
+                <input type="file" name="foto" accept="image/*">
+            </div>
+
+            <div class="form-group">
+                <label>Nombres</label>
+                <input type="text" name="nombres" required>
+            </div>
+
+            <div class="form-group">
+                <label>Apellidos</label>
+                <input type="text" name="apellidos" required>
+            </div>
+
+            <div class="form-group">
+                <label>Nacionalidad</label>
+                <input type="text" name="nacionalidad">
+            </div>
+
+            <div class="form-group">
+                <label>Lugar de nacimiento</label>
+                <input type="text" name="lugarnacimiento">
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de nacimiento</label>
+                <input type="date" name="fechanacimiento">
+            </div>
+
+            <div class="form-group">
+                <label>Número de cédula</label>
+                <input type="text" name="numerocedula" maxlength="10">
+            </div>
+
+            <div class="form-group">
+                <label>Sexo</label>
+                <select name="sexo">
+                    <option value="">Seleccione</option>
+                    <option value="M">Mujer</option>
+                    <option value="H">Hombre</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Estado civil</label>
+                <input type="text" name="estadocivil">
+            </div>
+
+            <div class="form-group">
+                <label>Licencia de conducir</label>
+                <input type="text" name="licenciaconducir">
+            </div>
+
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="text" name="telefonofijo">
+            </div>
+
+            <div class="form-group">
+                <label>Dirección domiciliaria</label>
+                <input type="text" name="direcciondomiciliaria">
+            </div>
+
+            <hr style="margin: 2rem 0; border: none; border-top: 1px solid #ddd;">
+            <h3 style="margin-bottom: 1rem;">Visibilidad de secciones en la hoja de vida</h3>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="mostrar_experiencia" checked>
+                    Mostrar Experiencia Laboral
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="mostrar_cursos" checked>
+                    Mostrar Capacitaciones y Cursos
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="mostrar_reconocimientos" checked>
+                    Mostrar Reconocimientos
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="mostrar_productos_academicos" checked>
+                    Mostrar Productos Académicos
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="mostrar_productos_laborales" checked>
+                    Mostrar Productos Laborales
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="mostrar_ventas" checked>
+                    Mostrar Venta Garage
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Validar que la fecha de nacimiento no sea en el futuro
+    document.querySelector('input[name="fechanacimiento"]').max = new Date().toISOString().split('T')[0];
+</script>
+
+</body>
+</html>

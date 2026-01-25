@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Experiencia Laboral</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <h1>Editar Experiencia Laboral</h1>
+    <a href="{% url 'panel_admin' %}" class="logout-btn">Volver</a>
+</div>
+
+<div class="container">
+    <div class="seccion card">
+        {% if error %}
+            <div style="background-color: #f8d7da; color: #721c24; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #f5c6cb;">
+                <strong>Error:</strong> {{ error }}
+            </div>
+        {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- empresa -->
+            <div class="form-group">
+                <label>Empresa</label>
+                <input type="text" name="empresa"
+                       value="{{ experiencia.empresa }}" required>
+            </div>
+
+            <!-- cargo -->
+            <div class="form-group">
+                <label>Cargo desempeñado</label>
+                <input type="text" name="cargo"
+                       value="{{ experiencia.cargo }}" required>
+            </div>
+
+            <!-- fechas -->
+            <div class="form-group">
+                <label>Fecha inicio</label>
+                <input type="date" name="fechainicio" id="fechainicio"
+                       value="{{ experiencia.fechainicio|date:'Y-m-d' }}" max="">
+            </div>
+
+            <div class="form-group">
+                <label>Fecha fin</label>
+                <input type="date" name="fechafin" id="fechafin"
+                       value="{{ experiencia.fechafin|date:'Y-m-d' }}" max="">
+                <small>Dejar vacío si es actual</small>
+            </div>
+
+            <!-- funciones -->
+            <div class="form-group">
+                <label>Funciones realizadas</label>
+                <textarea name="descripcion" rows="4">{{ experiencia.descripcion }}</textarea>
+            </div>
+
+            <!-- visible en front -->
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="activarparaqueseveaenfront"
+                           {% if experiencia.activarparaqueseveaenfront %}checked{% endif %}>
+                    Mostrar en la hoja de vida
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Actualizar Experiencia
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('fechainicio').max = hoy;
+    document.getElementById('fechafin').max = hoy;
+    
+    document.getElementById('fechainicio').addEventListener('change', function() {
+        document.getElementById('fechafin').min = this.value;
+    });
+    
+    document.getElementById('fechafin').addEventListener('change', function() {
+        if (this.value && document.getElementById('fechainicio').value > this.value) {
+            alert('La fecha de fin no puede ser anterior a la fecha de inicio');
+            this.value = '';
+        }
+    });
+</script>
+
+</body>
+</html>

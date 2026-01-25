@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Producto Académico</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <h1>Editar Producto Académico</h1>
+    <a href="{% url 'panel_admin' %}" class="logout-btn">Volver</a>
+</div>
+
+<div class="container">
+    <div class="seccion card">
+        {% if producto %}
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label>Nombre del Producto</label>
+                <input type="text" name="nombreproducto" 
+                       value="{{ producto.nombreproducto }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de Producto</label>
+                <select name="tiposproducto" required>
+                    <option value="">Seleccione</option>
+                    <option value="Artículo" {% if producto.tiposproducto == 'Artículo' %}selected{% endif %}>Artículo</option>
+                    <option value="Investigación" {% if producto.tiposproducto == 'Investigación' %}selected{% endif %}>Investigación</option>
+                    <option value="Proyecto" {% if producto.tiposproducto == 'Proyecto' %}selected{% endif %}>Proyecto</option>
+                    <option value="Tesis" {% if producto.tiposproducto == 'Tesis' %}selected{% endif %}>Tesis</option>
+                    <option value="Libro" {% if producto.tiposproducto == 'Libro' %}selected{% endif %}>Libro</option>
+                    <option value="Presentación" {% if producto.tiposproducto == 'Presentación' %}selected{% endif %}>Presentación</option>
+                    <option value="Otro" {% if producto.tiposproducto == 'Otro' %}selected{% endif %}>Otro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de Publicación</label>
+                <input type="date" name="fechapublicacion"
+                       value="{% if producto.fechapublicacion %}{{ producto.fechapublicacion|date:'Y-m-d' }}{% endif %}">
+            </div>
+
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea name="descripcion">{{ producto.descripcion }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Enlace (URL)</label>
+                <input type="url" name="enlace" value="{{ producto.enlace }}">
+            </div>
+
+            <div class="form-group">
+                <label>Archivo</label>
+                {% if producto.archivo %}
+                    <p><a href="{{ producto.archivo.url }}" target="_blank">Descargar archivo actual</a></p>
+                {% endif %}
+                <input type="file" name="archivo" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="activarparaqueseveaenfront"
+                           {% if producto.activarparaqueseveaenfront %}checked{% endif %}>
+                    Mostrar en la hoja de vida
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Actualizar Producto Académico
+            </button>
+        </form>
+        {% else %}
+        <p>No hay producto académico para editar.</p>
+        {% endif %}
+    </div>
+</div>
+
+</body>
+</html>
