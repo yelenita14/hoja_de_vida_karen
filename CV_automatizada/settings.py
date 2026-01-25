@@ -32,7 +32,7 @@ LOGOUT_REDIRECT_URL = 'mi_hoja_vida'
 
 # Configuración de acceso público a la hoja de vida
 ALLOWED_HOSTS = [
-    'karenanchundia-hoja-vida-profesional.onrender.com',
+    'https://karenanchundia-hoja-vida-profesional.onrender.com',
     'localhost',
     '127.0.0.1',
 ]
