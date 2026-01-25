@@ -29,7 +29,6 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/panel-admin/'
-LOGOUT_REDIRECT_URL = '/'
 
 # Configuración de acceso público a la hoja de vida
 ALLOWED_HOSTS = [
