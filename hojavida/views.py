@@ -1,4 +1,6 @@
 import os
+import base64
+import pdfkit
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.shortcuts import render, redirect
@@ -530,10 +532,6 @@ def editar_venta(request, venta_id):
 
 # Vista para descargar el PDF de la hoja de vida 
 def descargar_cv_pdf(request):
-    import pdfkit
-    import base64
-    import os
-    
     # Obtener datos
     datos = DATOSPERSONALES.objects.filter(perfilactivo=1).first()
     

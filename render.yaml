@@ -6,12 +6,11 @@ services:
 
     # Build: instalar wkhtmltopdf + dependencias + migraciones
     buildCommand: |
-      apt-get update
-      apt-get install -y wkhtmltopdf
+      chmod +x bin/wkhtmltopdf
       pip install -r requirements.txt
       python manage.py migrate
       python manage.py collectstatic --no-input
-
+      
     # Start command
     startCommand: gunicorn CV_automatizada.wsgi:application
 

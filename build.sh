@@ -2,22 +2,22 @@
 # Salir si ocurre un error
 set -o errexit
 
-# 0️⃣ Actualizar paquetes e instalar wkhtmltopdf
+# Actualizar paquetes e instalar wkhtmltopdf
 apt-get update
 apt-get install -y wkhtmltopdf
 
-# 1️⃣ Instalar librerías Python
+# Instalar librerías Python
 pip install -r requirements.txt
 
-# 2️⃣ Archivos estáticos
+# Archivos estáticos
 python manage.py collectstatic --no-input
 
-# 3️⃣ Crear las tablas en la base de datos de Render (Postgres)
+# Crear las tablas en la base de datos de Render (Postgres)
 python manage.py makemigrations
 python manage.py migrate --run-syncdb
 python manage.py migrate
 
-# 4️⃣ Crear tu usuario automáticamente si no existe
+# Crear tu usuario automáticamente si no existe
 python manage.py shell << END
 from django.contrib.auth import get_user_model
 User = get_user_model()
