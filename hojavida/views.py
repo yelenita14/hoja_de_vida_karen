@@ -1,6 +1,7 @@
 import os
 import base64
-import pdfkit
+import tempfile
+from weasyprint import HTML, CSS
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.shortcuts import render, redirect
@@ -709,27 +710,15 @@ def descargar_cv_pdf(request):
     
     # Convertir a PDF usando pdfkit
     try:
-        config = pdfkit.configuration(
-            wkhtmltopdf=settings.WKHTMLTOPDF_PATH
-        )
+       html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
+       pdf_file = html.write_pdf(stylesheets=[CSS(string='@page { size: A4; margin: 0.5in; margin-right: 0.5in; margin-bottom: 0.5in; margin-left: 0.5in; encoding: UTF-8; enable-local-file-access: None}')])
 
-        options = {
-            'page-size': 'A4',
-            'margin-top': '0.5in',
-            'margin-right': '0.5in',
-            'margin-bottom': '0.5in',
-            'margin-left': '0.5in',
-            'encoding': 'UTF-8',
-            'enable-local-file-access': None,
-        }
-        
-        pdf = pdfkit.from_string(html_string, False, configuration=config, options=options)
-        response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="Hoja_de_Vida.pdf"'
-        return response
+       response = HttpResponse(pdf_file, content_type='application/pdf')
+       response['Content-Disposition'] = 'attachment; filename="Hoja_de_Vida.pdf"'
+       return response
     except Exception as e:
-        print(f"Error en pdfkit: {e}")
-        return HttpResponse(f"Error al generar PDF: {str(e)}", status=500)
+       print(f"Error generando PDF: {e}")
+       return HttpResponse(f"Error generando PDF: {str(e)}", status=500)
 
 
 # Vistas para descargar certificados
