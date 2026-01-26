@@ -1,6 +1,7 @@
 import os
 import base64
 import tempfile
+import pymupdf as fitz
 from weasyprint import HTML, CSS
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -600,7 +601,6 @@ def descargar_cv_pdf(request):
                     if extension == 'pdf':
                         # Convertir PDF a imagen usando PyMuPDF
                         try:
-                            import fitz
                             import io
                             
                             # Abrir PDF y convertir primera página a imagen
@@ -643,7 +643,6 @@ def descargar_cv_pdf(request):
                     if extension == 'pdf':
                         # Convertir PDF a imagen usando PyMuPDF
                         try:
-                            import fitz
                             import io
                             
                             # Abrir PDF y convertir primera página a imagen
@@ -719,7 +718,6 @@ def descargar_cv_pdf(request):
     except Exception as e:
        print(f"Error generando PDF: {e}")
        return HttpResponse(f"Error generando PDF: {str(e)}", status=500)
-
 
 # Vistas para descargar certificados
 def descargar_certificado_curso(request, curso_id):
