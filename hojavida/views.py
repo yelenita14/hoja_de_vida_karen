@@ -16,10 +16,18 @@ from .models import DATOSPERSONALES, EXPERIENCIALABORAL, CURSOSREALIZADOS, RECON
 
 # Vista para mostrar la hoja de vida sin iniciar sesión
 def mi_hoja_vida(request):
+    # Primero intenta buscar un perfil activo
     datos = DATOSPERSONALES.objects.filter(perfilactivo=1).first()
-
+    
+    # Si no hay perfil activo, busca el último perfil creado
     if not datos:
-        return render(request, 'hojavida/mi_hoja_vida.html')
+        datos = DATOSPERSONALES.objects.order_by('-idperfil').first()
+    
+    # Si definitivamente no hay ningún perfil en la base de datos
+    if not datos:
+        return render(request, 'hojavida/mi_hoja_vida.html', {
+            'mensaje': 'No hay datos de perfil. Por favor, crea uno primero.'
+        })
 
     experiencias = EXPERIENCIALABORAL.objects.filter(
         idperfilconqueestaactivo=datos.idperfil,
