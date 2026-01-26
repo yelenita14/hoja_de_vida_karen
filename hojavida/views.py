@@ -315,7 +315,11 @@ def editar_datos(request):
             datos.apellidos = request.POST.get('apellidos', datos.apellidos)
             datos.nacionalidad = request.POST.get('nacionalidad', datos.nacionalidad)
             datos.lugarnacimiento = request.POST.get('lugarnacimiento', datos.lugarnacimiento)
-            datos.fechanacimiento = fechanacimiento_str or datos.fechanacimiento
+            
+            # Evitar modificar la fecha de nacimiento
+            if fechanacimiento_str and not datos.fechanacimiento:
+                datos.fechanacimiento = fechanacimiento_str  # Solo actualizar si está vacía
+
             datos.numerocedula = request.POST.get('numerocedula', datos.numerocedula)
             datos.sexo = request.POST.get('sexo', datos.sexo)
             datos.estadocivil = request.POST.get('estadocivil', datos.estadocivil)
@@ -331,9 +335,12 @@ def editar_datos(request):
             datos.mostrar_productos_academicos = 1 if request.POST.get('mostrar_productos_academicos') else 0
             datos.mostrar_productos_laborales = 1 if request.POST.get('mostrar_productos_laborales') else 0
             datos.mostrar_ventas = 1 if request.POST.get('mostrar_ventas') else 0
+            
             if 'foto' in request.FILES:
                 datos.foto = request.FILES['foto']
+                
             datos.save()
+
         return redirect('panel_admin')
     
     return render(request, 'hojavida/editar_datos.html', {'datos': datos})
