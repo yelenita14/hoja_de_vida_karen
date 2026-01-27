@@ -216,56 +216,104 @@ textarea {
     margin-top: 1rem;
 }
 
-/* --- CONTROL DE LA FOTO DE PERFIL --- */
+/* HOJA DE VIDA */
+
+.cv-header {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    padding: 2rem 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.cv-header h1 {
+    color: white;
+    margin-bottom: 0.3rem;
+    font-size: 2rem;
+}
+
+.cv-header > div:first-child {
+    text-align: center;
+    flex: 1;
+}
+
+.cv-header .cv-actions {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.cv-subtitle {
+    font-size: 0.9rem;
+    opacity: 0.85;
+    color: white;
+    margin: 0;
+}
+
+.cv-actions {
+    margin-top: 1rem;
+}
+
+.btn-header {
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    margin: 0 0.3rem;
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-header.admin {
+    background: rgba(255,255,255,0.25);
+    color: white;
+}
+
+.btn-header.admin:hover {
+    background: rgba(255,255,255,0.4);
+}
+
+.btn-header.pdf {
+    background: #3498db;
+    color: white;
+}
+
+.btn-header.pdf:hover {
+    background: #2980b9;
+}
+
+.cv-container {
+    max-width: 900px;
+    margin: auto;
+    padding: 2rem;
+}
+
+.perfil {
+    text-align: center;
+}
+
 .foto-perfil {
-    /* Tamaño exacto del círculo */
-    width: 160px; 
-    height: 160px;
-    
-    /* Mantiene la proporción: 'cover' recorta la imagen para llenar el círculo */
-    /* sin importar si la foto original era horizontal o vertical */
-    object-fit: cover; 
-    
+    width: 150px;
     border-radius: 50%;
     margin-bottom: 1rem;
     border: 4px solid #3498db;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
 }
 
-/* --- CONTROL DE IMÁGENES DE PRODUCTOS (VENTA GARAGE) --- */
-.producto-imagen {
-    /* Tamaño máximo en tu CV */
-    width: 100%;
-    max-width: 450px; /* Evita que la foto sea gigante en pantallas grandes */
-    height: 300px;    /* Altura fija para que todos los productos se vean alineados */
-    
-    /* 'contain' hace que se vea TODO el producto sin recortarlo, */
-    /* añadiendo espacios vacíos si la foto no es del mismo tamaño que el contenedor */
-    object-fit: contain; 
-    
-    background-color: #f4f4f4; /* Fondo gris suave para resaltar productos con fondo blanco */
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    border: 1px solid #ddd;
-    display: block;
-}
-
-/* --- AJUSTE PARA EL CONTENEDOR DE LA LISTA DE INFO --- */
 .info-list {
     list-style: none;
-    padding: 0;
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Hace que la info sea vea en columnas */
-    gap: 10px;
+    margin-top: 1rem;
 }
 
 .info-list li {
     font-size: 0.9rem;
-    padding: 5px;
-    border-bottom: 1px solid #eee;
-    text-align: left;
+    margin-bottom: 0.3rem;
 }
 
 /* ITEMS INTERNOS */
