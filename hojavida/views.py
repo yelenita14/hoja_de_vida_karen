@@ -247,6 +247,27 @@ def agregar_producto_academico(request):
     return render(request, 'hojavida/agregar_producto_academico.html')
 
 @login_required
+def agregar_producto_academico(request):
+    if request.method == 'POST':
+        perfil = DATOSPERSONALES.objects.filter(perfilactivo=1).first()
+        if perfil:
+            producto = PRODUCTOSACADEMICOS(
+                idperfilconqueestaactivo=perfil,
+                nombreproducto=request.POST.get('nombreproducto', ''),
+                tiposproducto=request.POST.get('tiposproducto', ''),
+                fechapublicacion=request.POST.get('fechapublicacion') or None,
+                descripcion=request.POST.get('descripcion', ''),
+                enlace=request.POST.get('enlace', ''),
+                activarparaqueseveaenfront=1 if request.POST.get('activarparaqueseveaenfront') else 0
+            )
+            if 'archivo' in request.FILES:
+                producto.archivo = request.FILES['archivo']
+            producto.save()
+        return redirect('panel_admin')
+    
+    return render(request, 'hojavida/agregar_producto_academico.html')
+
+@login_required
 def agregar_reconocimiento(request):
     if request.method == 'POST':
         perfil = DATOSPERSONALES.objects.filter(perfilactivo=1).first()
@@ -591,23 +612,73 @@ def descargar_cv_pdf(request):
 # Vistas para descargar certificados
 def descargar_certificado_curso(request, curso_id):
     perfil = DATOSPERSONALES.objects.filter(perfilactivo=1).first()
-    curso = CURSOSREALIZADOS.objects.filter(idcurso=curso_id, idperfilconqueestaactivo=perfil).first()
-
+    curso = CURSOSREALIZADOS.objects.filter(idcurso=curso_id, idperfilconqueestaactivo=perfil).first() if perfil else None
+    
     if not curso or not curso.archivo_certificado:
         return HttpResponse("Certificado no encontrado", status=404)
+    
+    try:
+        cert_path = curso.archivo_certificado.path
+        if not os.path.exists(cert_path):
+            return HttpResponse("Archivo no encontrado", status=404)
+        
+        with open(cert_path, 'rb') as f:
+            file_data = f.read()
+        
+        extension = cert_path.lower().split('.')[-1]
+        mime_types = {
+            'pdf': 'application/pdf',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'png': 'image/png',
+            'doc': 'application/msword',
+            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        }
+        
+        content_type = mime_types.get(extension, 'application/octet-stream')
+        filename = f"Certificado_{curso.nombrecurso}.{extension}"
+        
+        response = HttpResponse(file_data, content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    
+    except Exception as e:
+        print(f"Error descargando certificado: {e}")
+        return HttpResponse(f"Error descargando certificado: {str(e)}", status=500)
 
-    url, _ = cloudinary_url(curso.archivo_certificado.public_id)
-    return redirect(url)
 
 def descargar_certificado_reconocimiento(request, reconocimiento_id):
     perfil = DATOSPERSONALES.objects.filter(perfilactivo=1).first()
-    reconocimiento = RECONOCIMIENTOS.objects.filter(
-        idreconocimiento=reconocimiento_id,
-        idperfilconqueestaactivo=perfil
-    ).first()
-
+    reconocimiento = RECONOCIMIENTOS.objects.filter(idreconocimiento=reconocimiento_id, idperfilconqueestaactivo=perfil).first() if perfil else None
+    
     if not reconocimiento or not reconocimiento.archivo_certificado:
         return HttpResponse("Certificado no encontrado", status=404)
-
-    url, _ = cloudinary_url(reconocimiento.archivo_certificado.public_id)
-    return redirect(url)
+    
+    try:
+        cert_path = reconocimiento.archivo_certificado.path
+        if not os.path.exists(cert_path):
+            return HttpResponse("Archivo no encontrado", status=404)
+        
+        with open(cert_path, 'rb') as f:
+            file_data = f.read()
+        
+        extension = cert_path.lower().split('.')[-1]
+        mime_types = {
+            'pdf': 'application/pdf',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'png': 'image/png',
+            'doc': 'application/msword',
+            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        }
+        
+        content_type = mime_types.get(extension, 'application/octet-stream')
+        filename = f"Certificado_{reconocimiento.tiporeconocimiento}.{extension}"
+        
+        response = HttpResponse(file_data, content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    
+    except Exception as e:
+        print(f"Error descargando certificado: {e}")
+        return HttpResponse(f"Error descargando certificado: {str(e)}", status=500)
