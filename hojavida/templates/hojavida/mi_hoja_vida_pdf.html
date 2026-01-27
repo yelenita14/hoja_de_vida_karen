@@ -167,14 +167,13 @@
         }
     </style>
 </head>
-
 <body>
 
 <div class="cv-container">
 <!-- DATOS PERSONALES -->
 <div class="card perfil">
-    {% if foto_base64 %}
-        <img src="data:{{ foto_mime_type }};base64,{{ foto_base64 }}" class="foto-perfil" style="width: 130px; height: 130px;">
+    {% if datos.foto %}
+        <img src="{{ datos.foto.url }}" class="foto-perfil" style="width: 130px; height: 130px;">
     {% else %}
         <div class="foto-perfil" style="background-color: #ddd; display: flex; align-items: center; justify-content: center; color: #999; width: 130px; height: 130px;">
             Sin foto
@@ -343,32 +342,42 @@
 {% endif %}
 
 <!-- ANEXOS - CERTIFICADOS -->
-{% if cursos and datos.mostrar_cursos or reconocimientos and datos.mostrar_reconocimientos %}
+{% if (cursos and datos.mostrar_cursos) or (reconocimientos and datos.mostrar_reconocimientos) %}
+    {# CURSOS #}
     {% if cursos and datos.mostrar_cursos %}
         {% for c in cursos %}
-            {% if c.certificado_base64 %}
-                {% if c.certificado_mime_type == "image/png" or c.certificado_mime_type == "image/jpeg" %}
-                    <div style="page-break-before: always; padding: 20px; text-align: center; display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column;">
-                        <h2 style="color: #2c3e50; margin-bottom: 30px; font-size: 24px;">Certificado de Curso</h2>
-                        <img src="data:{{ c.certificado_mime_type }};base64,{{ c.certificado_base64 }}" alt="Certificado {{ c.nombrecurso }}" style="width: 95%; max-width: 100%; height: auto;">
-                    </div>
-                {% endif %}
+            {% if c.certificado_base64 and c.certificado_mime_type %}
+                <div style="page-break-before: always; padding: 20px; text-align: center; display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column;">
+                    <h2 style="color: #2c3e50; margin-bottom: 30px; font-size: 24px;">
+                        Certificado de Curso
+                    </h2>
+                    <img
+                        src="data:{{ c.certificado_mime_type }};base64,{{ c.certificado_base64 }}"
+                        alt="Certificado {{ c.nombrecurso }}"
+                        style="width: 95%; max-width: 100%; height: auto;">
+                </div>
             {% endif %}
         {% endfor %}
     {% endif %}
+    {# RECONOCIMIENTOS #}
     {% if reconocimientos and datos.mostrar_reconocimientos %}
         {% for r in reconocimientos %}
-            {% if r.certificado_base64 %}
-                {% if r.certificado_mime_type == "image/png" or r.certificado_mime_type == "image/jpeg" %}
-                    <div style="page-break-before: always; padding: 20px; text-align: center; display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column;">
-                        <h2 style="color: #2c3e50; margin-bottom: 30px; font-size: 24px;">Certificado de Reconocimiento</h2>
-                        <img src="data:{{ r.certificado_mime_type }};base64,{{ r.certificado_base64 }}" alt="Certificado {{ r.tiporeconocimiento }}" style="width: 95%; max-width: 100%; height: auto;">
+            {% if r.certificado_base64 and r.certificado_mime_type %}
+                <div class="certificado-page">
+                    <div class="certificado-container">
+                        <h2 class="certificado-titulo">
+                            Certificado de Reconocimiento
+                        </h2>
+                        <p class="certificado-entidad">
+                            {{ r.entidadpatrocinadora }}
+                        </p>
+                        <img
+                            src="data:{{ r.certificado_mime_type }};base64,{{ r.certificado_base64 }}"
+                            alt="Certificado {{ r.tiporeconocimiento }}"
+                            class="certificado-imagen">
                     </div>
-                {% endif %}
+                </div>
             {% endif %}
         {% endfor %}
     {% endif %}
 {% endif %}
-
-</body>
-</html>

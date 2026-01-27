@@ -1,11 +1,10 @@
-import os
-import base64
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML, CSS
+from cloudinary.utils import cloudinary_url
 from .models import (
-    DATOSPERSONALES, EXPERIENCIALABORAL, CURSOSREALIZADOS,
-    RECONOCIMIENTOS, ProductosAcademicos, ProductosLaborales, Ventas
+    DATOSPERSONALES, EXPERIENCIALABORAL, CURSOSREALIZADOS, RECONOCIMIENTOS, 
+    PRODUCTOSACADEMICOS, PRODUCTOSLABORALES, VENTAS
 )
 
 def descargar_cv_pdf(request):
@@ -22,76 +21,42 @@ def descargar_cv_pdf(request):
         idperfilconqueestaactivo=datos.idperfil,
         activarparaqueseveaenfront=1
     )
+    for c in cursos:
+        c.certificado_img_url = None
+        if c.archivo_certificado:
+            url, _ = cloudinary_url(
+                c.archivo_certificado.public_id,
+                format='jpg',
+                transformation=[{'page': 1}]
+            )
+            c.certificado_img_url = url
+
     reconocimientos = RECONOCIMIENTOS.objects.filter(
         idperfilconqueestaactivo=datos.idperfil,
         activarparaqueseveaenfront=1
     )
-    productos_academicos = ProductosAcademicos.objects.filter(
-        idperfilconqueestaactivo=datos.idperfil,
-        activarparaqueseveaenfront=1
-    )
-    productos_laborales = ProductosLaborales.objects.filter(
-        idperfilconqueestaactivo=datos.idperfil,
-        activarparaqueseveaenfront=1
-    )
-    ventas = Ventas.objects.filter(
-        idperfilconqueestaactivo=datos.idperfil,
-        activarparaqueseveaenfront=1
-    )
-
-    # Foto del perfil en base64
-    foto_base64 = None
-    foto_mime_type = 'image/jpeg'
-    if datos.foto and os.path.exists(datos.foto.path):
-        foto_path = datos.foto.path
-        extension = foto_path.lower().split('.')[-1]
-        if extension == 'png':
-            foto_mime_type = 'image/png'
-        elif extension == 'gif':
-            foto_mime_type = 'image/gif'
-        elif extension in ['jpg', 'jpeg']:
-            foto_mime_type = 'image/jpeg'
-        with open(foto_path, 'rb') as f:
-            foto_base64 = base64.b64encode(f.read()).decode()
-
-    # Convertir certificados de cursos a base64
-    for c in cursos:
-        c.certificado_base64 = None
-        c.certificado_mime_type = 'application/octet-stream'
-        if c.archivo_certificado and os.path.exists(c.archivo_certificado.path):
-            path = c.archivo_certificado.path
-            ext = path.lower().split('.')[-1]
-            with open(path, 'rb') as f:
-                c.certificado_base64 = base64.b64encode(f.read()).decode()
-            if ext == 'pdf':
-                c.certificado_mime_type = 'application/pdf'
-            elif ext in ['jpg', 'jpeg']:
-                c.certificado_mime_type = 'image/jpeg'
-            elif ext == 'png':
-                c.certificado_mime_type = 'image/png'
-
-    # Convertir certificados de reconocimientos a base64
     for r in reconocimientos:
-        r.certificado_base64 = None
-        r.certificado_mime_type = 'application/octet-stream'
-        if r.archivo_certificado and os.path.exists(r.archivo_certificado.path):
-            path = r.archivo_certificado.path
-            ext = path.lower().split('.')[-1]
-            with open(path, 'rb') as f:
-                r.certificado_base64 = base64.b64encode(f.read()).decode()
-            if ext == 'pdf':
-                r.certificado_mime_type = 'application/pdf'
-            elif ext in ['jpg', 'jpeg']:
-                r.certificado_mime_type = 'image/jpeg'
-            elif ext == 'png':
-                r.certificado_mime_type = 'image/png'
+        r.certificado_img_url = None
+        if r.archivo_certificado:
+            url, _ = cloudinary_url(
+                r.archivo_certificado.public_id,
+                format='jpg',
+                transformation=[{'page': 1}]
+            )
+            r.certificado_img_url = url
 
-    # Convertir imágenes de ventas a base64
-    for v in ventas:
-        v.imagen_base64 = None
-        if v.imagen and os.path.exists(v.imagen.path):
-            with open(v.imagen.path, 'rb') as f:
-                v.imagen_base64 = base64.b64encode(f.read()).decode()
+    productos_academicos = PRODUCTOSACADEMICOS.objects.filter(
+        idperfilconqueestaactivo=datos.idperfil,
+        activarparaqueseveaenfront=1
+    )
+    productos_laborales = PRODUCTOSLABORALES.objects.filter(
+        idperfilconqueestaactivo=datos.idperfil,
+        activarparaqueseveaenfront=1
+    )
+    ventas = VENTAS.objects.filter(
+        idperfilconqueestaactivo=datos.idperfil,
+        activarparaqueseveaenfront=1
+    )
 
     # Contexto para renderizar el HTML
     context = {
@@ -103,8 +68,6 @@ def descargar_cv_pdf(request):
         'productos_laborales': productos_laborales,
         'ventas': ventas,
         'es_pdf': True,
-        'foto_base64': foto_base64,
-        'foto_mime_type': foto_mime_type,
     }
 
     # Renderizar HTML

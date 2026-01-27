@@ -1,7 +1,7 @@
 import os
-import base64
 import tempfile
 import pymupdf as fitz
+from cloudinary.utils import cloudinary_url
 from weasyprint import HTML, CSS
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -224,27 +224,6 @@ def agregar_curso(request):
         return redirect('panel_admin')
     
     return render(request, 'hojavida/agregar_curso.html')
-
-@login_required
-def agregar_producto_academico(request):
-    if request.method == 'POST':
-        perfil = DATOSPERSONALES.objects.filter(perfilactivo=1).first()
-        if perfil:
-            producto = PRODUCTOSACADEMICOS(
-                idperfilconqueestaactivo=perfil,
-                nombreproducto=request.POST.get('nombreproducto', ''),
-                tiposproducto=request.POST.get('tiposproducto', ''),
-                fechapublicacion=request.POST.get('fechapublicacion') or None,
-                descripcion=request.POST.get('descripcion', ''),
-                enlace=request.POST.get('enlace', ''),
-                activarparaqueseveaenfront=1 if request.POST.get('activarparaqueseveaenfront') else 0
-            )
-            if 'archivo' in request.FILES:
-                producto.archivo = request.FILES['archivo']
-            producto.save()
-        return redirect('panel_admin')
-    
-    return render(request, 'hojavida/agregar_producto_academico.html')
 
 @login_required
 def agregar_producto_academico(request):
@@ -532,12 +511,11 @@ def editar_venta(request, venta_id):
 
 # Vista para descargar el PDF de la hoja de vida 
 def descargar_cv_pdf(request):
-    # Obtener datos
+    # Obtener datos del perfil activo
     datos = DATOSPERSONALES.objects.filter(perfilactivo=1).first()
-    
     if not datos:
         return HttpResponse("No hay datos para descargar", status=400)
-    
+
     experiencias = EXPERIENCIALABORAL.objects.filter(
         idperfilconqueestaactivo=datos.idperfil,
         activarparaqueseveaenfront=1
@@ -546,10 +524,29 @@ def descargar_cv_pdf(request):
         idperfilconqueestaactivo=datos.idperfil,
         activarparaqueseveaenfront=1
     )
+    for c in cursos:
+        c.certificado_img_url = None
+        if c.archivo_certificado:
+            url, _ = cloudinary_url(
+                c.archivo_certificado.public_id,
+                format='jpg',
+                transformation=[{'page': 1}]
+            )
+            c.certificado_img_url = url
+
     reconocimientos = RECONOCIMIENTOS.objects.filter(
         idperfilconqueestaactivo=datos.idperfil,
         activarparaqueseveaenfront=1
     )
+    for r in reconocimientos:
+        r.certificado_img_url = None
+        if r.archivo_certificado:
+            url, _ = cloudinary_url(
+                r.archivo_certificado.public_id,
+                format='jpg',
+                transformation=[{'page': 1}]
+            )
+            r.certificado_img_url = url
     productos_academicos = PRODUCTOSACADEMICOS.objects.filter(
         idperfilconqueestaactivo=datos.idperfil,
         activarparaqueseveaenfront=1
@@ -562,132 +559,8 @@ def descargar_cv_pdf(request):
         idperfilconqueestaactivo=datos.idperfil,
         activarparaqueseveaenfront=1
     )
-    
-    # Convertir foto a base64
-    foto_base64 = None
-    foto_mime_type = 'image/jpeg'
-    
-    if datos and datos.foto:
-        try:
-            foto_path = datos.foto.path
-            
-            # Detectar tipo de archivo
-            extension = foto_path.lower().split('.')[-1]
-            if extension == 'png':
-                foto_mime_type = 'image/png'
-            elif extension == 'gif':
-                foto_mime_type = 'image/gif'
-            elif extension in ['jpg', 'jpeg']:
-                foto_mime_type = 'image/jpeg'
-            
-            # Verificar si el archivo existe
-            if os.path.exists(foto_path):
-                with open(foto_path, 'rb') as f:
-                    foto_base64 = base64.b64encode(f.read()).decode()
-        except Exception as e:
-            print(f"Error al cargar foto: {e}")
-            foto_base64 = None
-    
-    # Convertir certificados a base64
-    for c in cursos:
-        if c.archivo_certificado:
-            try:
-                cert_path = c.archivo_certificado.path
-                if os.path.exists(cert_path):
-                    extension = cert_path.lower().split('.')[-1]
-                    
-                    if extension == 'pdf':
-                        # Convertir PDF a imagen usando PyMuPDF
-                        try:
-                            import io
-                            
-                            # Abrir PDF y convertir primera página a imagen
-                            doc = fitz.open(cert_path)
-                            if doc.page_count > 0:
-                                pix = doc[0].get_pixmap(matrix=fitz.Matrix(2, 2))  # Zoom 2x para mejor calidad
-                                img_data = pix.tobytes("png")
-                                c.certificado_base64 = base64.b64encode(img_data).decode()
-                                c.certificado_mime_type = 'image/png'
-                                doc.close()
-                            else:
-                                c.certificado_base64 = None
-                        except Exception as e:
-                            print(f"Error convirtiendo PDF a imagen con PyMuPDF: {e}")
-                            c.certificado_base64 = None
-                    else:
-                        # Para imágenes directas
-                        with open(cert_path, 'rb') as f:
-                            c.certificado_base64 = base64.b64encode(f.read()).decode()
-                            if extension in ['jpg', 'jpeg']:
-                                c.certificado_mime_type = 'image/jpeg'
-                            elif extension == 'png':
-                                c.certificado_mime_type = 'image/png'
-                            else:
-                                c.certificado_mime_type = 'application/octet-stream'
-                else:
-                    c.certificado_base64 = None
-            except Exception as e:
-                print(f"Error cargando certificado de curso: {e}")
-                c.certificado_base64 = None
-    
-    # Convertir certificados de reconocimientos a base64
-    for r in reconocimientos:
-        if r.archivo_certificado:
-            try:
-                cert_path = r.archivo_certificado.path
-                if os.path.exists(cert_path):
-                    extension = cert_path.lower().split('.')[-1]
-                    
-                    if extension == 'pdf':
-                        # Convertir PDF a imagen usando PyMuPDF
-                        try:
-                            import io
-                            
-                            # Abrir PDF y convertir primera página a imagen
-                            doc = fitz.open(cert_path)
-                            if doc.page_count > 0:
-                                pix = doc[0].get_pixmap(matrix=fitz.Matrix(2, 2))  # Zoom 2x para mejor calidad
-                                img_data = pix.tobytes("png")
-                                r.certificado_base64 = base64.b64encode(img_data).decode()
-                                r.certificado_mime_type = 'image/png'
-                                doc.close()
-                            else:
-                                r.certificado_base64 = None
-                        except Exception as e:
-                            print(f"Error convirtiendo PDF a imagen con PyMuPDF: {e}")
-                            r.certificado_base64 = None
-                    else:
-                        # Para imágenes directas
-                        with open(cert_path, 'rb') as f:
-                            r.certificado_base64 = base64.b64encode(f.read()).decode()
-                            if extension in ['jpg', 'jpeg']:
-                                r.certificado_mime_type = 'image/jpeg'
-                            elif extension == 'png':
-                                r.certificado_mime_type = 'image/png'
-                            else:
-                                r.certificado_mime_type = 'application/octet-stream'
-                else:
-                    r.certificado_base64 = None
-            except Exception as e:
-                print(f"Error cargando certificado de reconocimiento: {e}")
-                r.certificado_base64 = None
-    
-    # Convertir imágenes de ventas a base64
-    for v in ventas:
-        if v.imagen:
-            try:
-                img_path = v.imagen.path
-                if os.path.exists(img_path):
-                    with open(img_path, 'rb') as f:
-                        v.imagen_base64 = base64.b64encode(f.read()).decode()
-                else:
-                    v.imagen_base64 = None
-            except Exception as e:
-                print(f"Error cargando imagen de venta: {e}")
-                v.imagen_base64 = None
-    
-    # Preparar contexto
-    base_url = request.build_absolute_uri('/')
+
+    # Contexto para renderizar el HTML
     context = {
         'datos': datos,
         'experiencias': experiencias,
@@ -697,96 +570,44 @@ def descargar_cv_pdf(request):
         'productos_laborales': productos_laborales,
         'ventas': ventas,
         'es_pdf': True,
-        'foto_base64': foto_base64,
-        'foto_mime_type': foto_mime_type,
-        'base_url': base_url,
     }
-    
-    # Renderizar HTML
-    html_string = render_to_string("hojavida/mi_hoja_vida_pdf.html", context)
-    
-    # Convertir a PDF usando pdfkit
-    try:
-       html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
-       pdf_file = html.write_pdf(stylesheets=[CSS(string='@page { size: A4; margin: 0.5in; margin-right: 0.5in; margin-bottom: 0.5in; margin-left: 0.5in; encoding: UTF-8; enable-local-file-access: None}')])
 
-       response = HttpResponse(pdf_file, content_type='application/pdf')
-       response['Content-Disposition'] = 'attachment; filename="Hoja_de_Vida.pdf"'
-       return response
+    # Renderizar HTML
+    html_string = render_to_string('hojavida/mi_hoja_vida_pdf.html', context)
+
+    try:
+        # Generar PDF con WeasyPrint
+        html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
+        pdf = html.write_pdf(stylesheets=[CSS(string='@page { size: A4; margin: 1cm }')])
+
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="Hoja_de_Vida.pdf"'
+        return response
+
     except Exception as e:
-       print(f"Error generando PDF: {e}")
-       return HttpResponse(f"Error generando PDF: {str(e)}", status=500)
+        print(f"✗ Error generando PDF con WeasyPrint: {e}")
+        return HttpResponse(f"Error al generar PDF: {str(e)}", status=500)
 
 # Vistas para descargar certificados
 def descargar_certificado_curso(request, curso_id):
     perfil = DATOSPERSONALES.objects.filter(perfilactivo=1).first()
-    curso = CURSOSREALIZADOS.objects.filter(idcurso=curso_id, idperfilconqueestaactivo=perfil).first() if perfil else None
-    
+    curso = CURSOSREALIZADOS.objects.filter(idcurso=curso_id, idperfilconqueestaactivo=perfil).first()
+
     if not curso or not curso.archivo_certificado:
         return HttpResponse("Certificado no encontrado", status=404)
-    
-    try:
-        cert_path = curso.archivo_certificado.path
-        if not os.path.exists(cert_path):
-            return HttpResponse("Archivo no encontrado", status=404)
-        
-        with open(cert_path, 'rb') as f:
-            file_data = f.read()
-        
-        extension = cert_path.lower().split('.')[-1]
-        mime_types = {
-            'pdf': 'application/pdf',
-            'jpg': 'image/jpeg',
-            'jpeg': 'image/jpeg',
-            'png': 'image/png',
-            'doc': 'application/msword',
-            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        }
-        
-        content_type = mime_types.get(extension, 'application/octet-stream')
-        filename = f"Certificado_{curso.nombrecurso}.{extension}"
-        
-        response = HttpResponse(file_data, content_type=content_type)
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        return response
-    
-    except Exception as e:
-        print(f"Error descargando certificado: {e}")
-        return HttpResponse(f"Error descargando certificado: {str(e)}", status=500)
 
+    url, _ = cloudinary_url(curso.archivo_certificado.public_id)
+    return redirect(url)
 
 def descargar_certificado_reconocimiento(request, reconocimiento_id):
     perfil = DATOSPERSONALES.objects.filter(perfilactivo=1).first()
-    reconocimiento = RECONOCIMIENTOS.objects.filter(idreconocimiento=reconocimiento_id, idperfilconqueestaactivo=perfil).first() if perfil else None
-    
+    reconocimiento = RECONOCIMIENTOS.objects.filter(
+        idreconocimiento=reconocimiento_id,
+        idperfilconqueestaactivo=perfil
+    ).first()
+
     if not reconocimiento or not reconocimiento.archivo_certificado:
         return HttpResponse("Certificado no encontrado", status=404)
-    
-    try:
-        cert_path = reconocimiento.archivo_certificado.path
-        if not os.path.exists(cert_path):
-            return HttpResponse("Archivo no encontrado", status=404)
-        
-        with open(cert_path, 'rb') as f:
-            file_data = f.read()
-        
-        extension = cert_path.lower().split('.')[-1]
-        mime_types = {
-            'pdf': 'application/pdf',
-            'jpg': 'image/jpeg',
-            'jpeg': 'image/jpeg',
-            'png': 'image/png',
-            'doc': 'application/msword',
-            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        }
-        
-        content_type = mime_types.get(extension, 'application/octet-stream')
-        filename = f"Certificado_{reconocimiento.tiporeconocimiento}.{extension}"
-        
-        response = HttpResponse(file_data, content_type=content_type)
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        return response
-    
-    except Exception as e:
-        print(f"Error descargando certificado: {e}")
-        return HttpResponse(f"Error descargando certificado: {str(e)}", status=500)
+
+    url, _ = cloudinary_url(reconocimiento.archivo_certificado.public_id)
+    return redirect(url)
