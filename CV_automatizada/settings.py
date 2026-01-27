@@ -153,4 +153,3 @@ if DEBUG:
 else:
     # En producción: usar Cloudinary
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    MEDIA_URL = 'https://res.cloudinary.com/drexsapbv/image/upload/'
