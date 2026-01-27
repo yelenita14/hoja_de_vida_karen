@@ -6,25 +6,28 @@
     padding: 0;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, sans-serif;
-    background: #ecf0f1;
-    color: #2c3e50;
+    background: #f5f5f5;
+    color: #333;
     line-height: 1.6;
+}
+
+body.cv-page {
+    background: #f0f2f5;
 }
 
 a {
     text-decoration: none;
+    color: inherit;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4, h5, h6 {
     color: #2c3e50;
-}
-
-.container {
-    max-width: 1100px;
-    margin: auto;
-    padding: 2rem;
 }
 
 /* BOTONES */
@@ -37,6 +40,7 @@ h1, h2, h3 {
     cursor: pointer;
     border: none;
     display: inline-block;
+    transition: all 0.3s ease;
 }
 
 .btn-primary {
@@ -58,31 +62,667 @@ h1, h2, h3 {
     background: #2980b9;
 }
 
-/* HEADER GENERAL */
+/* HOJA DE VIDA - NUEVO DISEÑO */
 
-.header {
-    background: linear-gradient(135deg, #2c3e50, #34495e);
-    color: white;
-    padding: 1.5rem 2rem;
+.cv-page {
+    background: #f0f2f5;
+}
+
+.cv-wrapper {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    min-height: 100vh;
 }
 
-.header h1 {
+.cv-sidebar {
+    width: 280px;
+    background: white;
+    padding: 2rem 1.5rem;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sidebar-perfil {
+    text-align: center;
+}
+
+.sidebar-foto {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #e8b4d4;
+    margin-bottom: 1rem;
+}
+
+.placeholder-foto {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: #e8b4d4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.85rem;
+    margin: 0 auto 1rem;
+}
+
+.sidebar-nombre {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #d946a6;
+    margin-bottom: 0.3rem;
+}
+
+.sidebar-profesion {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0;
+}
+
+.sidebar-divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 0.5rem 0;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.nav-item {
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #555;
+    transition: all 0.2s;
+    display: block;
+}
+
+.nav-item:hover {
+    background: #f5f5f5;
+    color: #d946a6;
+}
+
+.sidebar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.btn-sidebar {
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    display: block;
+    transition: all 0.3s;
+    border: none;
+}
+
+.admin-btn {
+    background: #e8f4f8;
+    color: #0277bd;
+}
+
+.admin-btn:hover {
+    background: #b3e5fc;
+}
+
+.pdf-btn {
+    background: #2c3e50;
     color: white;
 }
 
-.logout-btn {
-    background: rgba(255,255,255,0.2);
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    color: rgb(255, 255, 255);
-    font-size: 0.85rem;
+.pdf-btn:hover {
+    background: #1a252f;
 }
 
-.logout-btn:hover {
-    background: rgba(255,255,255,0.3);
+.cv-main {
+    flex: 1;
+    padding: 2rem;
+}
+
+.cv-container {
+    max-width: 1200px;
+}
+
+/* SECTION HEADERS */
+
+.section-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 3px solid #d946a6;
+}
+
+.section-header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.section-header p {
+    color: #888;
+    font-size: 0.95rem;
+}
+
+/* TARJETAS GENERALES */
+
+.card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 2rem;
+}
+
+.card.perfil {
+    margin-bottom: 3rem;
+}
+
+.perfil-content {
+    display: flex;
+    gap: 2rem;
+}
+
+.perfil-foto-container {
+    flex-shrink: 0;
+}
+
+.foto-perfil {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #e8b4d4;
+}
+
+.perfil-info {
+    flex: 1;
+}
+
+.perfil-info h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.perfil-descripcion {
+    color: #777;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+.perfil-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.perfil-column h4 {
+    font-size: 0.95rem;
+    color: #d946a6;
+    margin-bottom: 0.8rem;
+    font-weight: 700;
+}
+
+.perfil-column p {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+}
+
+.perfil-column strong {
+    color: #2c3e50;
+}
+
+.perfil-direcciones {
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+.link-primary {
+    color: #d946a6;
+    font-weight: 600;
+}
+
+.link-primary:hover {
+    text-decoration: underline;
+}
+
+/* ITEMS EN EXPERIENCIA */
+
+.item {
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.item-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.3rem;
+}
+
+.item-subtitle {
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 0.8rem;
+}
+
+.item-description {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* CURSOS GRID */
+
+.cursos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.card-curso {
+    background: white;
+    border-radius: 14px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-top: 4px solid #3498db;
+    transition: transform 0.3s;
+}
+
+.card-curso:hover {
+    transform: translateY(-5px);
+}
+
+.curso-header {
+    margin-bottom: 0.8rem;
+}
+
+.curso-titulo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #3498db;
+    margin-bottom: 0.3rem;
+}
+
+.curso-horas {
+    font-size: 0.8rem;
+    background: #e3f2fd;
+    color: #0277bd;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.curso-fecha {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 0.6rem;
+}
+
+.curso-descripcion {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.curso-footer {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.btn-view-cert,
+.btn-download-pdf {
+    flex: 1;
+    min-width: 140px;
+    padding: 0.6rem 0.8rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-view-cert {
+    background: #3498db;
+    color: white;
+}
+
+.btn-view-cert:hover {
+    background: #2980b9;
+}
+
+.btn-download-pdf {
+    background: white;
+    color: #3498db;
+    border: 2px solid #3498db;
+}
+
+.btn-download-pdf:hover {
+    background: #e3f2fd;
+}
+
+.sin-certificado {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+/* RECONOCIMIENTOS GRID */
+
+.reconocimientos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.card-reconocimiento {
+    background: white;
+    border-radius: 14px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-left: 4px solid #f39c12;
+    transition: transform 0.3s;
+}
+
+.card-reconocimiento:hover {
+    transform: translateY(-5px);
+}
+
+.reco-titulo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2980b9;
+    margin-bottom: 0.5rem;
+}
+
+.reco-entidad {
+    font-size: 0.9rem;
+    color: #0277bd;
+    margin-bottom: 0.3rem;
+}
+
+.reco-fecha {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 0.8rem;
+}
+
+.reco-descripcion {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.reco-footer {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+/* PRODUCTOS GRID */
+
+.productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.card-producto {
+    background: white;
+    border-radius: 14px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-left: 4px solid #9c27b0;
+    transition: transform 0.3s;
+}
+
+.card-producto:hover {
+    transform: translateY(-5px);
+}
+
+.prod-titulo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.prod-tipo {
+    font-size: 0.85rem;
+    color: #9c27b0;
+    margin-bottom: 0.5rem;
+}
+
+.prod-fecha {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 0.6rem;
+}
+
+.prod-descripcion {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.prod-footer {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.btn-link,
+.btn-download {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.6rem 0.8rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-link {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.btn-link:hover {
+    background: #c8e6c9;
+}
+
+.btn-download {
+    background: #9c27b0;
+    color: white;
+}
+
+.btn-download:hover {
+    background: #7b1fa2;
+}
+
+/* GARAGE GRID */
+
+.garage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.card-venta {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: transform 0.3s;
+}
+
+.card-venta:hover {
+    transform: translateY(-8px);
+}
+
+.venta-imagen {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.placeholder-imagen {
+    width: 100%;
+    height: 200px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.venta-info {
+    padding: 1.5rem;
+}
+
+.venta-titulo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.venta-estado {
+    margin-bottom: 0.8rem;
+}
+
+.badge-bueno {
+    display: inline-block;
+    background: #d4edda;
+    color: #155724;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-regular {
+    display: inline-block;
+    background: #fff3cd;
+    color: #856404;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-malo {
+    display: inline-block;
+    background: #f8d7da;
+    color: #721c24;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.venta-precio {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #d946a6;
+    margin-bottom: 0.6rem;
+}
+
+.venta-descripcion {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 0.6rem;
+}
+
+.venta-fecha {
+    font-size: 0.8rem;
+    color: #999;
+    margin-bottom: 1rem;
+}
+
+.btn-archivo {
+    display: inline-block;
+    padding: 0.6rem 1rem;
+    background: #3498db;
+    color: white;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-archivo:hover {
+    background: #2980b9;
+}
+
+/* FORMULARIOS */
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    color: #555;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #2c3e50;
+}
+
+textarea {
+    resize: none;
 }
 
 /* LOGIN */
@@ -129,39 +769,31 @@ h1, h2, h3 {
     margin-bottom: 1rem;
 }
 
-/*
-   FORMULARIOS */
+/* HEADER GENERAL */
 
-.form-group {
-    margin-bottom: 1rem;
+.header {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.form-group label {
+.header h1 {
+    color: white;
+}
+
+.logout-btn {
+    background: rgba(255,255,255,0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    color: rgb(255, 255, 255);
     font-size: 0.85rem;
-    color: #555;
-    display: block;
-    margin-bottom: 0.25rem;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 0.6rem;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-    font-size: 0.9rem;
-    outline: none;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    border-color: #2c3e50;
-}
-
-textarea {
-    resize: none;
+.logout-btn:hover {
+    background: rgba(255,255,255,0.3);
 }
 
 /* PANEL ADMIN */
@@ -184,28 +816,6 @@ textarea {
     gap: 1.5rem;
 }
 
-.card {
-    background: white;
-    border-radius: 18px;
-    padding: 1.5rem;
-    box-shadow: 0 10px 25px rgba(0,0,0,.06);
-    transition: transform 0.2s;
-    margin-bottom: 1.3rem;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.card h3 {
-    margin-bottom: 0.5rem;
-}
-
-.card p {
-    font-size: 0.9rem;
-    color: #666;
-}
-
 .card.highlight {
     border: 2px dashed #3498db;
 }
@@ -214,140 +824,6 @@ textarea {
     display: flex;
     gap: 0.5rem;
     margin-top: 1rem;
-}
-
-/* HOJA DE VIDA */
-
-.cv-header {
-    background: linear-gradient(135deg, #2c3e50, #34495e);
-    color: white;
-    padding: 2rem 1.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
-
-.cv-header h1 {
-    color: white;
-    margin-bottom: 0.3rem;
-    font-size: 2rem;
-}
-
-.cv-header > div:first-child {
-    text-align: center;
-    flex: 1;
-}
-
-.cv-header .cv-actions {
-    position: absolute;
-    right: 1.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    margin: 0;
-    display: flex;
-    gap: 0.5rem;
-}
-
-.cv-subtitle {
-    font-size: 0.9rem;
-    opacity: 0.85;
-    color: white;
-    margin: 0;
-}
-
-.cv-actions {
-    margin-top: 1rem;
-}
-
-.btn-header {
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    margin: 0 0.3rem;
-    font-size: 0.85rem;
-    text-decoration: none;
-    display: inline-block;
-    cursor: pointer;
-    border: none;
-}
-
-.btn-header.admin {
-    background: rgba(255,255,255,0.25);
-    color: white;
-}
-
-.btn-header.admin:hover {
-    background: rgba(255,255,255,0.4);
-}
-
-.btn-header.pdf {
-    background: #3498db;
-    color: white;
-}
-
-.btn-header.pdf:hover {
-    background: #2980b9;
-}
-
-.cv-container {
-    max-width: 900px;
-    margin: auto;
-    padding: 2rem;
-}
-
-.perfil {
-    text-align: center;
-}
-
-.foto-perfil {
-    width: 150px;
-    border-radius: 50%;
-    margin-bottom: 1rem;
-    border: 4px solid #3498db;
-}
-
-.info-list {
-    list-style: none;
-    margin-top: 1rem;
-}
-
-.info-list li {
-    font-size: 0.9rem;
-    margin-bottom: 0.3rem;
-}
-
-/* ITEMS INTERNOS */
-
-.item {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.item h4 {
-    margin-bottom: 0.4rem;
-    font-weight: 600;
-    color: #2c3e50;
-}
-
-.item span {
-    font-size: 0.8rem;
-    color: #777;
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-.item p {
-    margin: 0.5rem 0;
-    font-size: 0.9rem;
-    color: #555;
-    line-height: 1.5;
 }
 
 /* TABLAS */
@@ -377,50 +853,104 @@ th {
     font-style: italic;
 }
 
-/* ESTADO PRODUCTO VENTAS */
+/* RESPONSIVE */
 
-.estado-bueno {
-    display: inline-block;
-    background: #d4edda;
-    color: #155724;
-    padding: 0.3rem 0.7rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-top: 0.5rem;
-}
+@media (max-width: 1024px) {
+    .cv-wrapper {
+        flex-direction: column;
+    }
 
-.estado-regular {
-    display: inline-block;
-    background: #fff3cd;
-    color: #856404;
-    padding: 0.3rem 0.7rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-top: 0.5rem;
-}
+    .cv-sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
 
-.producto-imagen {
-    width: 100%;
-    max-width: 500px;
-    height: auto;
-    margin: 1rem auto;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    display: block;
-}
+    .perfil-grid {
+        grid-template-columns: 1fr;
+    }
 
-@media print {
-    .producto-imagen {
-        max-width: 100%;
-        width: 95%;
-        margin: 1rem 2.5%;
+    .cursos-grid,
+    .reconocimientos-grid,
+    .productos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    .garage-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+
+    .perfil-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .perfil-info {
+        width: 100%;
     }
 }
 
-.fecha-publicacion {
-    font-size: 0.8rem;
-    color: #999;
-    margin-top: 0.5rem;
+@media (max-width: 768px) {
+    .cv-main {
+        padding: 1rem;
+    }
+
+    .card {
+        padding: 1.2rem;
+    }
+
+    .section-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .cursos-grid,
+    .reconocimientos-grid,
+    .productos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .garage-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .nav-item {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .sidebar-actions {
+        flex-direction: row;
+    }
+
+    .btn-sidebar {
+        flex: 1;
+    }
+}
+
+@media print {
+    .cv-sidebar {
+        display: none;
+    }
+
+    .cv-wrapper {
+        flex-direction: column;
+    }
+
+    .cv-main {
+        padding: 0;
+    }
+
+    .card {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #eee;
+    }
 }
