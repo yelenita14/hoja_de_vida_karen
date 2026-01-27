@@ -586,21 +586,38 @@ def descargar_cv_pdf(request):
     
     if datos and datos.foto:
         try:
-            foto_path = datos.foto.path
-            
-            # Detectar tipo de archivo
-            extension = foto_path.lower().split('.')[-1]
-            if extension == 'png':
-                foto_mime_type = 'image/png'
-            elif extension == 'gif':
-                foto_mime_type = 'image/gif'
-            elif extension in ['jpg', 'jpeg']:
-                foto_mime_type = 'image/jpeg'
-            
-            # Verificar si el archivo existe
-            if os.path.exists(foto_path):
-                with open(foto_path, 'rb') as f:
-                    foto_base64 = base64.b64encode(f.read()).decode()
+            # Manejar tanto archivos locales como URLs de Cloudinary
+            if hasattr(datos.foto, 'path'):
+                # Archivo local
+                foto_path = datos.foto.path
+                extension = foto_path.lower().split('.')[-1]
+                if extension == 'png':
+                    foto_mime_type = 'image/png'
+                elif extension == 'gif':
+                    foto_mime_type = 'image/gif'
+                elif extension in ['jpg', 'jpeg']:
+                    foto_mime_type = 'image/jpeg'
+                
+                if os.path.exists(foto_path):
+                    with open(foto_path, 'rb') as f:
+                        foto_base64 = base64.b64encode(f.read()).decode()
+            else:
+                # URL de Cloudinary o similar
+                import urllib.request
+                foto_url = datos.foto.url
+                try:
+                    with urllib.request.urlopen(foto_url) as response:
+                        foto_data = response.read()
+                        foto_base64 = base64.b64encode(foto_data).decode()
+                        # Detectar tipo MIME
+                        content_type = response.headers.get('Content-Type', 'image/jpeg')
+                        if 'png' in content_type:
+                            foto_mime_type = 'image/png'
+                        elif 'gif' in content_type:
+                            foto_mime_type = 'image/gif'
+                except Exception as url_error:
+                    print(f"Error al descargar foto de URL: {url_error}")
+                    foto_base64 = None
         except Exception as e:
             print(f"Error al cargar foto: {e}")
             foto_base64 = None
@@ -609,40 +626,76 @@ def descargar_cv_pdf(request):
     for c in cursos:
         if c.archivo_certificado:
             try:
-                cert_path = c.archivo_certificado.path
-                if os.path.exists(cert_path):
-                    extension = cert_path.lower().split('.')[-1]
-                    
-                    if extension == 'pdf':
-                        # Convertir PDF a imagen usando PyMuPDF
-                        try:
-                            import io
-                            
-                            # Abrir PDF y convertir primera página a imagen
-                            doc = fitz.open(cert_path)
-                            if doc.page_count > 0:
-                                pix = doc[0].get_pixmap(matrix=fitz.Matrix(2, 2))  # Zoom 2x para mejor calidad
-                                img_data = pix.tobytes("png")
-                                c.certificado_base64 = base64.b64encode(img_data).decode()
-                                c.certificado_mime_type = 'image/png'
-                                doc.close()
-                            else:
+                # Manejar tanto archivos locales como URLs de Cloudinary
+                if hasattr(c.archivo_certificado, 'path'):
+                    cert_path = c.archivo_certificado.path
+                    if os.path.exists(cert_path):
+                        extension = cert_path.lower().split('.')[-1]
+                        
+                        if extension == 'pdf':
+                            # Convertir PDF a imagen usando PyMuPDF
+                            try:
+                                import io
+                                
+                                # Abrir PDF y convertir primera página a imagen
+                                doc = fitz.open(cert_path)
+                                if doc.page_count > 0:
+                                    pix = doc[0].get_pixmap(matrix=fitz.Matrix(2, 2))  # Zoom 2x para mejor calidad
+                                    img_data = pix.tobytes("png")
+                                    c.certificado_base64 = base64.b64encode(img_data).decode()
+                                    c.certificado_mime_type = 'image/png'
+                                    doc.close()
+                                else:
+                                    c.certificado_base64 = None
+                            except Exception as e:
+                                print(f"Error convirtiendo PDF a imagen con PyMuPDF: {e}")
                                 c.certificado_base64 = None
-                        except Exception as e:
-                            print(f"Error convirtiendo PDF a imagen con PyMuPDF: {e}")
-                            c.certificado_base64 = None
+                        else:
+                            # Para imágenes directas
+                            with open(cert_path, 'rb') as f:
+                                c.certificado_base64 = base64.b64encode(f.read()).decode()
+                                if extension in ['jpg', 'jpeg']:
+                                    c.certificado_mime_type = 'image/jpeg'
+                                elif extension == 'png':
+                                    c.certificado_mime_type = 'image/png'
+                                else:
+                                    c.certificado_mime_type = 'application/octet-stream'
                     else:
-                        # Para imágenes directas
-                        with open(cert_path, 'rb') as f:
-                            c.certificado_base64 = base64.b64encode(f.read()).decode()
-                            if extension in ['jpg', 'jpeg']:
-                                c.certificado_mime_type = 'image/jpeg'
-                            elif extension == 'png':
-                                c.certificado_mime_type = 'image/png'
-                            else:
-                                c.certificado_mime_type = 'application/octet-stream'
+                        c.certificado_base64 = None
                 else:
-                    c.certificado_base64 = None
+                    # URL de Cloudinary
+                    import urllib.request
+                    cert_url = c.archivo_certificado.url
+                    try:
+                        # Descargar archivo de Cloudinary
+                        with urllib.request.urlopen(cert_url) as response:
+                            cert_data = response.read()
+                            content_type = response.headers.get('Content-Type', 'application/octet-stream')
+                            
+                            # Detectar extensión desde URL o Content-Type
+                            if 'pdf' in content_type or cert_url.lower().endswith('.pdf'):
+                                # Para PDFs, intentar convertir a imagen con PyMuPDF
+                                try:
+                                    import io
+                                    doc = fitz.open(stream=io.BytesIO(cert_data), filetype='pdf')
+                                    if doc.page_count > 0:
+                                        pix = doc[0].get_pixmap(matrix=fitz.Matrix(2, 2))
+                                        img_data = pix.tobytes("png")
+                                        c.certificado_base64 = base64.b64encode(img_data).decode()
+                                        c.certificado_mime_type = 'image/png'
+                                        doc.close()
+                                    else:
+                                        c.certificado_base64 = None
+                                except Exception as e:
+                                    print(f"Error convirtiendo PDF a imagen: {e}")
+                                    c.certificado_base64 = None
+                            else:
+                                # Para imágenes
+                                c.certificado_base64 = base64.b64encode(cert_data).decode()
+                                c.certificado_mime_type = content_type
+                    except Exception as url_error:
+                        print(f"Error descargando certificado de URL: {url_error}")
+                        c.certificado_base64 = None
             except Exception as e:
                 print(f"Error cargando certificado de curso: {e}")
                 c.certificado_base64 = None
@@ -651,40 +704,76 @@ def descargar_cv_pdf(request):
     for r in reconocimientos:
         if r.archivo_certificado:
             try:
-                cert_path = r.archivo_certificado.path
-                if os.path.exists(cert_path):
-                    extension = cert_path.lower().split('.')[-1]
-                    
-                    if extension == 'pdf':
-                        # Convertir PDF a imagen usando PyMuPDF
-                        try:
-                            import io
-                            
-                            # Abrir PDF y convertir primera página a imagen
-                            doc = fitz.open(cert_path)
-                            if doc.page_count > 0:
-                                pix = doc[0].get_pixmap(matrix=fitz.Matrix(2, 2))  # Zoom 2x para mejor calidad
-                                img_data = pix.tobytes("png")
-                                r.certificado_base64 = base64.b64encode(img_data).decode()
-                                r.certificado_mime_type = 'image/png'
-                                doc.close()
-                            else:
+                # Manejar tanto archivos locales como URLs de Cloudinary
+                if hasattr(r.archivo_certificado, 'path'):
+                    cert_path = r.archivo_certificado.path
+                    if os.path.exists(cert_path):
+                        extension = cert_path.lower().split('.')[-1]
+                        
+                        if extension == 'pdf':
+                            # Convertir PDF a imagen usando PyMuPDF
+                            try:
+                                import io
+                                
+                                # Abrir PDF y convertir primera página a imagen
+                                doc = fitz.open(cert_path)
+                                if doc.page_count > 0:
+                                    pix = doc[0].get_pixmap(matrix=fitz.Matrix(2, 2))  # Zoom 2x para mejor calidad
+                                    img_data = pix.tobytes("png")
+                                    r.certificado_base64 = base64.b64encode(img_data).decode()
+                                    r.certificado_mime_type = 'image/png'
+                                    doc.close()
+                                else:
+                                    r.certificado_base64 = None
+                            except Exception as e:
+                                print(f"Error convirtiendo PDF a imagen con PyMuPDF: {e}")
                                 r.certificado_base64 = None
-                        except Exception as e:
-                            print(f"Error convirtiendo PDF a imagen con PyMuPDF: {e}")
-                            r.certificado_base64 = None
+                        else:
+                            # Para imágenes directas
+                            with open(cert_path, 'rb') as f:
+                                r.certificado_base64 = base64.b64encode(f.read()).decode()
+                                if extension in ['jpg', 'jpeg']:
+                                    r.certificado_mime_type = 'image/jpeg'
+                                elif extension == 'png':
+                                    r.certificado_mime_type = 'image/png'
+                                else:
+                                    r.certificado_mime_type = 'application/octet-stream'
                     else:
-                        # Para imágenes directas
-                        with open(cert_path, 'rb') as f:
-                            r.certificado_base64 = base64.b64encode(f.read()).decode()
-                            if extension in ['jpg', 'jpeg']:
-                                r.certificado_mime_type = 'image/jpeg'
-                            elif extension == 'png':
-                                r.certificado_mime_type = 'image/png'
-                            else:
-                                r.certificado_mime_type = 'application/octet-stream'
+                        r.certificado_base64 = None
                 else:
-                    r.certificado_base64 = None
+                    # URL de Cloudinary
+                    import urllib.request
+                    cert_url = r.archivo_certificado.url
+                    try:
+                        # Descargar archivo de Cloudinary
+                        with urllib.request.urlopen(cert_url) as response:
+                            cert_data = response.read()
+                            content_type = response.headers.get('Content-Type', 'application/octet-stream')
+                            
+                            # Detectar tipo desde URL o Content-Type
+                            if 'pdf' in content_type or cert_url.lower().endswith('.pdf'):
+                                # Para PDFs, intentar convertir a imagen con PyMuPDF
+                                try:
+                                    import io
+                                    doc = fitz.open(stream=io.BytesIO(cert_data), filetype='pdf')
+                                    if doc.page_count > 0:
+                                        pix = doc[0].get_pixmap(matrix=fitz.Matrix(2, 2))
+                                        img_data = pix.tobytes("png")
+                                        r.certificado_base64 = base64.b64encode(img_data).decode()
+                                        r.certificado_mime_type = 'image/png'
+                                        doc.close()
+                                    else:
+                                        r.certificado_base64 = None
+                                except Exception as e:
+                                    print(f"Error convirtiendo PDF a imagen: {e}")
+                                    r.certificado_base64 = None
+                            else:
+                                # Para imágenes
+                                r.certificado_base64 = base64.b64encode(cert_data).decode()
+                                r.certificado_mime_type = content_type
+                    except Exception as url_error:
+                        print(f"Error descargando certificado de URL: {url_error}")
+                        r.certificado_base64 = None
             except Exception as e:
                 print(f"Error cargando certificado de reconocimiento: {e}")
                 r.certificado_base64 = None
@@ -693,12 +782,25 @@ def descargar_cv_pdf(request):
     for v in ventas:
         if v.imagen:
             try:
-                img_path = v.imagen.path
-                if os.path.exists(img_path):
-                    with open(img_path, 'rb') as f:
-                        v.imagen_base64 = base64.b64encode(f.read()).decode()
+                # Manejar tanto archivos locales como URLs de Cloudinary
+                if hasattr(v.imagen, 'path'):
+                    img_path = v.imagen.path
+                    if os.path.exists(img_path):
+                        with open(img_path, 'rb') as f:
+                            v.imagen_base64 = base64.b64encode(f.read()).decode()
+                    else:
+                        v.imagen_base64 = None
                 else:
-                    v.imagen_base64 = None
+                    # URL de Cloudinary
+                    import urllib.request
+                    img_url = v.imagen.url
+                    try:
+                        with urllib.request.urlopen(img_url) as response:
+                            img_data = response.read()
+                            v.imagen_base64 = base64.b64encode(img_data).decode()
+                    except Exception as url_error:
+                        print(f"Error descargando imagen de venta de URL: {url_error}")
+                        v.imagen_base64 = None
             except Exception as e:
                 print(f"Error cargando imagen de venta: {e}")
                 v.imagen_base64 = None
@@ -728,7 +830,7 @@ def descargar_cv_pdf(request):
        pdf_file = html.write_pdf(stylesheets=[CSS(string='@page { size: A4; margin: 0.5in; margin-right: 0.5in; margin-bottom: 0.5in; margin-left: 0.5in; encoding: UTF-8; enable-local-file-access: None}')])
 
        response = HttpResponse(pdf_file, content_type='application/pdf')
-       response['Content-Disposition'] = 'attachment; filename="Hoja_de_Vida.pdf"'
+       response['Content-Disposition'] = 'inline; filename="Hoja_de_Vida.pdf"'
        return response
     except Exception as e:
        print(f"Error generando PDF: {e}")
