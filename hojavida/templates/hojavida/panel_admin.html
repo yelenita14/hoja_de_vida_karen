@@ -2,176 +2,244 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 
-<body class="admin-page">
+<body class="cv-page">
 
-<header class="cv-header">
-    <div>
-        <h1>Panel de Administración</h1>
-    </div>
-    <a href="{% url 'logout' %}" class="btn-header admin">Cerrar sesión</a>
-</header>
+<div class="admin-wrapper">
+    <!-- SIDEBAR IZQUIERDO -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-content">
+            <!-- PERFIL ADMIN -->
+            <div class="sidebar-perfil">
+                <div class="admin-icon">⚙️</div>
+                <h2 class="sidebar-nombre">Panel Admin</h2>
+                <p class="sidebar-profesion">{{ user.username }}</p>
+            </div>
 
-<main class="container">
+            <hr class="sidebar-divider">
 
-    <section class="welcome-card">
-        <h2>Hola, {{ user.username }} 👋</h2>
-    </section>
+            <!-- NAVEGACIÓN -->
+            <nav class="sidebar-nav">
+                <a href="#datos" class="nav-item">👤 Datos Personales</a>
+                <a href="#experiencia" class="nav-item">💼 Experiencia</a>
+                <a href="#cursos" class="nav-item">🎓 Cursos</a>
+                <a href="#productos-academicos" class="nav-item">📚 Productos Académicos</a>
+                <a href="#productos-laborales" class="nav-item">🚀 Productos Laborales</a>
+                <a href="#reconocimientos" class="nav-item">🏆 Reconocimientos</a>
+                <a href="#ventas" class="nav-item">🛍️ Ventas</a>
+            </nav>
 
-    <section class="admin-grid">
+            <hr class="sidebar-divider">
 
-        <!-- DATOS PERSONALES -->
-        <div class="card">
-            <h3>Datos Personales</h3>
-            <p>Información básica y de contacto.</p>
-            <div class="btn-group">
-                <a href="{% url 'agregar_datos' %}" class="btn btn-primary">Agregar</a>
-                <a href="{% url 'editar_datos' %}" class="btn btn-secondary">Editar</a>
+            <!-- BOTONES DE ACCIÓN -->
+            <div class="sidebar-actions">
+                <a href="{% url 'mi_hoja_vida' %}" class="btn-sidebar admin-btn">👁️ Ver CV Público</a>
+                <a href="{% url 'logout' %}" class="btn-sidebar logout-btn">🚪 Cerrar sesión</a>
             </div>
         </div>
+    </aside>
 
-        <!-- EXPERIENCIA -->
-        <div class="card">
-            <h3>Experiencia Laboral</h3>
-            <p>Registra tu experiencia profesional.</p>
-            <div class="btn-group">
-                <a href="{% url 'agregar_experiencia' %}" class="btn btn-primary">Agregar</a>
-            </div>
-            {% if experiencias %}
-            <div style="margin-top: 15px;">
-                <p><strong>Selecciona una experiencia para editar:</strong></p>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    {% for exp in experiencias %}
-                    <a href="{% url 'editar_experiencia_laboral' exp.idexperiencia %}" class="btn btn-secondary" style="text-align: left;">
-                        {{ exp.cargo }} - {{ exp.empresa }}
-                    </a>
-                    {% endfor %}
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="cv-main admin-main">
+        <div class="cv-container">
+            <!-- HEADER DE BIENVENIDA -->
+            <section class="admin-welcome">
+                <h1>Hola, <span class="username">{{ user.username }}</span> 👋</h1>
+                <p>Gestiona tu hoja de vida profesional desde aquí</p>
+            </section>
+
+            <!-- DATOS PERSONALES -->
+            <section class="admin-section" id="datos">
+                <div class="section-header-admin">
+                    <h2>👤 Datos Personales</h2>
+                    <p>Información básica, foto y datos de contacto.</p>
                 </div>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- EDUCACIÓN -->
-        <div class="card">
-            <h3>Educación</h3>
-            <p>Cursos, capacitaciones y certificados.</p>
-            <div class="btn-group">
-                <a href="{% url 'agregar_curso' %}" class="btn btn-primary">Agregar</a>
-            </div>
-            {% if cursos %}
-            <div style="margin-top: 15px;">
-                <p><strong>Selecciona un curso para editar:</strong></p>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    {% for curso in cursos %}
-                    <a href="{% url 'editar_curso' curso.idcurso %}" class="btn btn-secondary" style="text-align: left;">
-                        {{ curso.nombrecurso }} - {{ curso.entidadpatrocinadora }}
-                    </a>
-                    {% endfor %}
+                <div class="admin-card">
+                    <div class="card-info">
+                        <p>Edita tu información personal y foto de perfil.</p>
+                    </div>
+                    <div class="btn-group">
+                        <a href="{% url 'agregar_datos' %}" class="btn-admin btn-add">➕ Agregar</a>
+                        <a href="{% url 'editar_datos' %}" class="btn-admin btn-edit">✏️ Editar</a>
+                    </div>
                 </div>
-            </div>
-            {% endif %}
-        </div>
+            </section>
 
-        <!-- PRODUCTOS ACADÉMICOS -->
-        <div class="card">
-            <h3>Productos Académicos</h3>
-            <p>Publicaciones y trabajos académicos.</p>
-            <div class="btn-group">
-                <a href="{% url 'agregar_producto_academico' %}" class="btn btn-primary">Agregar</a>
-            </div>
-            {% if productos_academicos %}
-            <div style="margin-top: 15px;">
-                <p><strong>Selecciona un producto para editar:</strong></p>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    {% for prod in productos_academicos %}
-                    <a href="{% url 'editar_producto_academico' prod.idproducto %}" class="btn btn-secondary" style="text-align: left;">
-                        {{ prod.nombreproducto }} - {{ prod.tiposproducto }}
-                    </a>
-                    {% endfor %}
+            <!-- EXPERIENCIA LABORAL -->
+            <section class="admin-section" id="experiencia">
+                <div class="section-header-admin">
+                    <h2>💼 Experiencia Laboral</h2>
+                    <p>Registra tu experiencia profesional.</p>
                 </div>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- PRODUCTOS LABORALES -->
-        <div class="card">
-            <h3>Productos Laborales</h3>
-            <p>Proyectos y trabajos realizados.</p>
-            <div class="btn-group">
-                <a href="{% url 'agregar_producto_laboral' %}" class="btn btn-primary">Agregar</a>
-            </div>
-            {% if productos_laborales %}
-            <div style="margin-top: 15px;">
-                <p><strong>Selecciona un producto para editar:</strong></p>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    {% for prod in productos_laborales %}
-                    <a href="{% url 'editar_producto_laboral' prod.idproducto %}" class="btn btn-secondary" style="text-align: left;">
-                        {{ prod.nombreproducto }}
-                    </a>
-                    {% endfor %}
+                <div class="admin-card">
+                    <div class="btn-group">
+                        <a href="{% url 'agregar_experiencia' %}" class="btn-admin btn-add">➕ Agregar</a>
+                    </div>
+                    {% if experiencias %}
+                    <div class="items-list">
+                        {% for exp in experiencias %}
+                        <div class="item-row">
+                            <div class="item-info">
+                                <h4>{{ exp.cargo }}</h4>
+                                <p>{{ exp.empresa }}</p>
+                            </div>
+                            <a href="{% url 'editar_experiencia_laboral' exp.idexperiencia %}" class="btn-item-edit">✏️ Editar</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="empty-message">No hay experiencias registradas</p>
+                    {% endif %}
                 </div>
-            </div>
-            {% endif %}
-        </div>
+            </section>
 
-        <!-- RECONOCIMIENTOS -->
-        <div class="card">
-            <h3>Reconocimientos</h3>
-            <p>Premios y distinciones obtenidas.</p>
-            <div class="btn-group">
-                <a href="{% url 'agregar_reconocimiento' %}" class="btn btn-primary">Agregar</a>
-            </div>
-            {% if reconocimientos %}
-            <div style="margin-top: 15px;">
-                <p><strong>Selecciona un reconocimiento para editar:</strong></p>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    {% for rec in reconocimientos %}
-                    <a href="{% url 'editar_reconocimiento' rec.idreconocimiento %}" class="btn btn-secondary" style="text-align: left;">
-                        {{ rec.tiporeconocimiento }} - {{ rec.entidadpatrocinadora }}
-                    </a>
-                    {% endfor %}
+            <!-- CURSOS Y CAPACITACIONES -->
+            <section class="admin-section" id="cursos">
+                <div class="section-header-admin">
+                    <h2>🎓 Cursos y Capacitaciones</h2>
+                    <p>Registra tus cursos, certificaciones y capacitaciones.</p>
                 </div>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- VENTAS -->
-        <div class="card">
-            <h3>Ventas</h3>
-            <p>Gestión de ventas tipo garage.</p>
-            <div class="btn-group">
-                <a href="{% url 'agregar_venta' %}" class="btn btn-primary">Agregar</a>
-            </div>
-            {% if ventas %}
-            <div style="margin-top: 15px;">
-                <p><strong>Selecciona una venta para editar:</strong></p>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    {% for venta in ventas %}
-                    <a href="{% url 'editar_venta' venta.idventa %}" class="btn btn-secondary" style="text-align: left;">
-                        {{ venta.nombreproducto }} - ${{ venta.valordelbien }} ({{ venta.estadoproducto }})
-                    </a>
-                    {% endfor %}
+                <div class="admin-card">
+                    <div class="btn-group">
+                        <a href="{% url 'agregar_curso' %}" class="btn-admin btn-add">➕ Agregar</a>
+                    </div>
+                    {% if cursos %}
+                    <div class="items-list">
+                        {% for curso in cursos %}
+                        <div class="item-row">
+                            <div class="item-info">
+                                <h4>{{ curso.nombrecurso }}</h4>
+                                <p>{{ curso.entidadpatrocinadora }}</p>
+                            </div>
+                            <a href="{% url 'editar_curso' curso.idcurso %}" class="btn-item-edit">✏️ Editar</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="empty-message">No hay cursos registrados</p>
+                    {% endif %}
                 </div>
-            </div>
-            {% endif %}
+            </section>
+
+            <!-- PRODUCTOS ACADÉMICOS -->
+            <section class="admin-section" id="productos-academicos">
+                <div class="section-header-admin">
+                    <h2>📚 Productos Académicos</h2>
+                    <p>Publicaciones, artículos y trabajos académicos.</p>
+                </div>
+                <div class="admin-card">
+                    <div class="btn-group">
+                        <a href="{% url 'agregar_producto_academico' %}" class="btn-admin btn-add">➕ Agregar</a>
+                    </div>
+                    {% if productos_academicos %}
+                    <div class="items-list">
+                        {% for prod in productos_academicos %}
+                        <div class="item-row">
+                            <div class="item-info">
+                                <h4>{{ prod.nombreproducto }}</h4>
+                                <p>{{ prod.tiposproducto }}</p>
+                            </div>
+                            <a href="{% url 'editar_producto_academico' prod.idproducto %}" class="btn-item-edit">✏️ Editar</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="empty-message">No hay productos académicos registrados</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- PRODUCTOS LABORALES -->
+            <section class="admin-section" id="productos-laborales">
+                <div class="section-header-admin">
+                    <h2>🚀 Productos Laborales</h2>
+                    <p>Proyectos y trabajos realizados profesionalmente.</p>
+                </div>
+                <div class="admin-card">
+                    <div class="btn-group">
+                        <a href="{% url 'agregar_producto_laboral' %}" class="btn-admin btn-add">➕ Agregar</a>
+                    </div>
+                    {% if productos_laborales %}
+                    <div class="items-list">
+                        {% for prod in productos_laborales %}
+                        <div class="item-row">
+                            <div class="item-info">
+                                <h4>{{ prod.nombreproducto }}</h4>
+                            </div>
+                            <a href="{% url 'editar_producto_laboral' prod.idproducto %}" class="btn-item-edit">✏️ Editar</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="empty-message">No hay productos laborales registrados</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- RECONOCIMIENTOS -->
+            <section class="admin-section" id="reconocimientos">
+                <div class="section-header-admin">
+                    <h2>🏆 Reconocimientos</h2>
+                    <p>Premios, distinciones y menciones honoríficas.</p>
+                </div>
+                <div class="admin-card">
+                    <div class="btn-group">
+                        <a href="{% url 'agregar_reconocimiento' %}" class="btn-admin btn-add">➕ Agregar</a>
+                    </div>
+                    {% if reconocimientos %}
+                    <div class="items-list">
+                        {% for rec in reconocimientos %}
+                        <div class="item-row">
+                            <div class="item-info">
+                                <h4>{{ rec.tiporeconocimiento }}</h4>
+                                <p>{{ rec.entidadpatrocinadora }}</p>
+                            </div>
+                            <a href="{% url 'editar_reconocimiento' rec.idreconocimiento %}" class="btn-item-edit">✏️ Editar</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="empty-message">No hay reconocimientos registrados</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- VENTAS -->
+            <section class="admin-section" id="ventas">
+                <div class="section-header-admin">
+                    <h2>🛍️ Venta de Garage</h2>
+                    <p>Gestiona tus productos en venta.</p>
+                </div>
+                <div class="admin-card">
+                    <div class="btn-group">
+                        <a href="{% url 'agregar_venta' %}" class="btn-admin btn-add">➕ Agregar</a>
+                    </div>
+                    {% if ventas %}
+                    <div class="items-list">
+                        {% for venta in ventas %}
+                        <div class="item-row">
+                            <div class="item-info">
+                                <h4>{{ venta.nombreproducto }}</h4>
+                                <p>${{ venta.valordelbien|floatformat:2 }} • {{ venta.estadoproducto }}</p>
+                            </div>
+                            <a href="{% url 'editar_venta' venta.idventa %}" class="btn-item-edit">✏️ Editar</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="empty-message">No hay productos en venta registrados</p>
+                    {% endif %}
+                </div>
+            </section>
+
         </div>
-
-        <!-- VISTA PREVIA -->
-        <div class="card highlight">
-            <h3>Vista Previa</h3>
-            <p>Visualiza tu hoja de vida pública.</p>
-            <div class="btn-group">
-                <a href="{% url 'mi_hoja_vida' %}" class="btn btn-primary">Ver CV</a>
-            </div>
-        </div>
-
-    </section>
-
-</main>
+    </main>
+</div>
 
 </body>
 </html>

@@ -954,3 +954,495 @@ th {
         border: 1px solid #eee;
     }
 }
+
+/* ===== DISEÑO LOGIN ===== */
+
+.login-page {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container {
+    background: white;
+    padding: 3rem;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 20;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.login-header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.login-form {
+    margin-bottom: 1.5rem;
+}
+
+.login-form .form-group {
+    margin-bottom: 1.2rem;
+}
+
+.login-form label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+
+.login-form input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 0.9rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.alert {
+    padding: 0.8rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.alert-error {
+    background: #ffebee;
+    color: #c62828;
+    border-left: 4px solid #c62828;
+}
+
+.alert-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-left: 4px solid #2e7d32;
+}
+
+.login-divider {
+    height: 1px;
+    background: #e0e0e0;
+    margin: 1.5rem 0;
+}
+
+.login-footer {
+    text-align: center;
+}
+
+.login-footer p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.8rem;
+}
+
+.btn-link {
+    color: #667eea;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: inline-block;
+}
+
+.btn-link:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+.login-bg {
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: moveBackground 20s linear infinite;
+    z-index: 1;
+}
+
+@keyframes moveBackground {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+/* ===== DISEÑO PANEL ADMIN ===== */
+
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.admin-sidebar {
+    width: 280px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 1.5rem;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    color: white;
+}
+
+.admin-sidebar .sidebar-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.admin-sidebar .sidebar-perfil {
+    text-align: center;
+}
+
+.admin-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.admin-sidebar .sidebar-nombre {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.3rem;
+}
+
+.admin-sidebar .sidebar-profesion {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0;
+}
+
+.admin-sidebar .sidebar-divider {
+    border-top-color: rgba(255, 255, 255, 0.2);
+}
+
+.admin-sidebar .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.admin-sidebar .nav-item {
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    transition: all 0.2s;
+    display: block;
+}
+
+.admin-sidebar .nav-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.admin-sidebar .sidebar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.admin-sidebar .btn-sidebar {
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    display: block;
+    transition: all 0.3s;
+    border: none;
+    color: white;
+}
+
+.admin-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.admin-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.logout-btn {
+    background: #ff6b6b;
+}
+
+.logout-btn:hover {
+    background: #ff5252;
+}
+
+.admin-main {
+    flex: 1;
+    padding: 2rem;
+    background: #f0f2f5;
+}
+
+.admin-welcome {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 3px solid #667eea;
+}
+
+.admin-welcome h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.admin-welcome .username {
+    color: #667eea;
+    font-weight: 700;
+}
+
+.admin-welcome p {
+    color: #888;
+    font-size: 0.95rem;
+}
+
+.admin-section {
+    margin-bottom: 2.5rem;
+    scroll-margin-top: 20px;
+}
+
+.section-header-admin {
+    margin-bottom: 1.5rem;
+}
+
+.section-header-admin h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.section-header-admin p {
+    color: #888;
+    font-size: 0.95rem;
+}
+
+.admin-card {
+    background: white;
+    border-radius: 14px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.admin-card .btn-group {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-admin {
+    padding: 0.7rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+.btn-add {
+    background: #667eea;
+    color: white;
+}
+
+.btn-add:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+
+.btn-edit {
+    background: #764ba2;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #6a3a96;
+    transform: translateY(-2px);
+}
+
+.items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+    transition: all 0.2s;
+}
+
+.item-row:hover {
+    background: #f0f1f5;
+    transform: translateX(5px);
+}
+
+.item-info h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.3rem;
+}
+
+.item-info p {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.btn-item-edit {
+    padding: 0.5rem 1rem;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-item-edit:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+
+.empty-message {
+    text-align: center;
+    color: #999;
+    padding: 2rem;
+    font-style: italic;
+}
+
+.card-info {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.card-info p {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1024px) {
+    .admin-wrapper {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        padding: 1.5rem;
+    }
+
+    .admin-sidebar .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .admin-sidebar .nav-item {
+        flex: 1;
+        min-width: 140px;
+    }
+
+    .admin-sidebar .sidebar-actions {
+        flex-direction: row;
+    }
+
+    .admin-sidebar .btn-sidebar {
+        flex: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-container {
+        margin: 1rem;
+        padding: 2rem;
+    }
+
+    .admin-main {
+        padding: 1rem;
+    }
+
+    .item-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .btn-item-edit {
+        width: 100%;
+    }
+
+    .admin-welcome h1 {
+        font-size: 1.5rem;
+    }
+}
