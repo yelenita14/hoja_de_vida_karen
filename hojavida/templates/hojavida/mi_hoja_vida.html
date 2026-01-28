@@ -16,11 +16,7 @@
             <!-- FOTO Y NOMBRE -->
             <div class="sidebar-perfil">
                 {% if datos.foto %}
-                    {% if datos.foto.url|slice:":4" == "http" %}
-                        <img src="{{ datos.foto.url }}" class="sidebar-foto">
-                    {% else %}
-                        <img src="https://res.cloudinary.com/drexsapbv{{ datos.foto.url }}" class="sidebar-foto">
-                    {% endif %}
+                    <img src="{{ datos.foto.url }}" class="sidebar-foto" onerror="this.style.display='none'">
                 {% else %}
                     <div class="sidebar-foto placeholder-foto">
                         Sin foto
@@ -81,11 +77,7 @@
     <div class="perfil-content">
         <div class="perfil-foto-container">
             {% if datos.foto %}
-                {% if datos.foto.url|slice:":4" == "http" %}
-                    <img src="{{ datos.foto.url }}" class="foto-perfil">
-                {% else %}
-                    <img src="https://res.cloudinary.com/drexsapbv{{ datos.foto.url }}" class="foto-perfil">
-                {% endif %}
+                <img src="{{ datos.foto.url }}" class="foto-perfil" onerror="this.style.display='none'">
             {% else %}
                 <div class="foto-perfil" style="background-color: #ddd; display: flex; align-items: center; justify-content: center; color: #999;">
                     Sin foto
