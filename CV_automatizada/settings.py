@@ -34,6 +34,10 @@ DEBUG = 'RENDER' not in os.environ
 ALLOWED_HOSTS = ['hoja-de-vida-karen.onrender.com', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ['https://hoja-de-vida-karen.onrender.com']
 
+if not DEBUG:
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
