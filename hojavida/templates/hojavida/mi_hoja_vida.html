@@ -93,8 +93,8 @@
     <aside class="admin-sidebar" style="background-color: #242744;">
 <div class="sidebar-perfil">
     <div class="perfil-foto">
-        {% if datos.foto %}
-            <img src="{{ datos.foto.url }}" alt="Foto de Perfil">
+        {% if datos.foto_perfil %}
+            <img src="{{ datos.foto_perfil.url }}" alt="Foto de Perfil">
         {% else %}
             <img src="{% static 'img/default-profile.png' %}" alt="Sin foto">
         {% endif %}

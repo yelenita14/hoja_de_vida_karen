@@ -33,13 +33,13 @@ def descargar_cv_pdf(request):
     foto_base64 = None
     foto_mime_type = 'image/jpeg'
     
-    if datos.foto:
+    if datos.foto_perfil:
         try:
             # Intentamos abrir el archivo directamente. 
-            # Esto es mejor que usar os.path.exists(datos.foto.path) en servidores efímeros
-            with datos.foto.open('rb') as f:
+            # Esto es mejor que usar os.path.exists(datos.foto_perfil.path) en servidores efímeros
+            with datos.foto_perfil.open('rb') as f:
                 foto_base64 = base64.b64encode(f.read()).decode()
-                ext = datos.foto.name.lower().split('.')[-1]
+                ext = datos.foto_perfil.name.lower().split('.')[-1]
                 if ext == 'png': foto_mime_type = 'image/png'
                 elif ext == 'gif': foto_mime_type = 'image/gif'
         except Exception as e:
