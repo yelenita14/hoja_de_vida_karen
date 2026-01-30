@@ -31,7 +31,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['hoja-de-vida-karen.onrender.com', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['https://hoja-de-vida-karen.onrender.com']
 
 # Application definition
 INSTALLED_APPS = [
