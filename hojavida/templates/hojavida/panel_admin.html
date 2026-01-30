@@ -74,39 +74,42 @@
                 </div>
                 
                 <div class="admin-card">
-                    {% if datos %}
+                    {% if perfil %}
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                         <div style="background: var(--fondo-input); padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(79, 209, 197, 0.2);">
                             <div style="color: var(--texto-gris-medio); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">NOMBRE COMPLETO</div>
-                            <div style="color: var(--texto-blanco); font-size: 1.1rem; font-weight: 600;">{{ datos.nombres }} {{ datos.apellidos }}</div>
+                            <div style="color: var(--texto-blanco); font-size: 1.1rem; font-weight: 600;">{{ perfil.nombres }} {{ perfil.apellidos }}</div>
                         </div>
                         
-                        {% if datos.numerocedula %}
+                        {% if perfil.numerocedula %}
                         <div style="background: var(--fondo-input); padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(79, 209, 197, 0.2);">
                             <div style="color: var(--texto-gris-medio); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">CÉDULA</div>
-                            <div style="color: var(--texto-blanco); font-size: 1.1rem; font-weight: 600;">{{ datos.numerocedula }}</div>
+                            <div style="color: var(--texto-blanco); font-size: 1.1rem; font-weight: 600;">{{ perfil.numerocedula }}</div>
                         </div>
                         {% endif %}
                         
-                        {% if datos.nacionalidad %}
+                        {% if perfil.nacionalidad %}
                         <div style="background: var(--fondo-input); padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(79, 209, 197, 0.2);">
                             <div style="color: var(--texto-gris-medio); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">NACIONALIDAD</div>
-                            <div style="color: var(--texto-blanco); font-size: 1.1rem; font-weight: 600;">{{ datos.nacionalidad }}</div>
+                            <div style="color: var(--texto-blanco); font-size: 1.1rem; font-weight: 600;">{{ perfil.nacionalidad }}</div>
                         </div>
                         {% endif %}
                         
-                        {% if datos.direcciondomiciliaria %}
+                        {% if perfil.direcciondomiciliaria %}
                         <div style="background: var(--fondo-input); padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(79, 209, 197, 0.2);">
                             <div style="color: var(--texto-gris-medio); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">UBICACIÓN</div>
-                            <div style="color: var(--texto-blanco); font-size: 1.1rem; font-weight: 600;">{{ datos.direcciondomiciliaria }}</div>
+                            <div style="color: var(--texto-blanco); font-size: 1.1rem; font-weight: 600;">{{ perfil.direcciondomiciliaria }}</div>
                         </div>
                         {% endif %}
                     </div>
                     {% endif %}
                     
                     <div class="btn-group">
+                        {% if not perfil %}
                         <a href="{% url 'agregar_datos' %}" class="btn-add">➕ Agregar Datos</a>
+                        {% else %}
                         <a href="{% url 'editar_datos' %}" class="btn-edit">✏️ Editar Datos</a>
+                        {% endif %}
                     </div>
                 </div>
             </section>
@@ -130,10 +133,10 @@
                         {% for exp in experiencias %}
                         <div class="item-row">
                             <div class="item-info">
-                                <h4>{{ exp.cargo }}</h4>
-                                <p>{{ exp.empresa }} • {{ exp.fechainicio|date:"m/Y" }} - {% if exp.fechafin %}{{ exp.fechafin|date:"m/Y" }}{% else %}Actual{% endif %}</p>
+                                <h4>{{ exp.cargodesempenado }}</h4>
+                                <p>{{ exp.nombrempresa }} • {{ exp.fechainiciogestion|date:"m/Y" }} - {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"m/Y" }}{% else %}Actual{% endif %}</p>
                             </div>
-                            <a href="{% url 'editar_experiencia_laboral' exp.idexperiencia %}" class="btn-item-edit">✏️ Editar</a>
+                            <a href="{% url 'editar_experiencia_laboral' exp.idexperiencialaboral %}" class="btn-item-edit">✏️ Editar</a>
                         </div>
                         {% endfor %}
                     </div>
@@ -165,7 +168,7 @@
                                 <h4>{{ curso.nombrecurso }}</h4>
                                 <p>{{ curso.entidadpatrocinadora }}{% if curso.fechainicio %} • {{ curso.fechainicio|date:"Y" }}{% endif %}</p>
                             </div>
-                            <a href="{% url 'editar_curso' curso.idcurso %}" class="btn-item-edit">✏️ Editar</a>
+                            <a href="{% url 'editar_curso' curso.idcursorealizado %}" class="btn-item-edit">✏️ Editar</a>
                         </div>
                         {% endfor %}
                     </div>
@@ -226,10 +229,10 @@
                         {% for prod in productos_academicos %}
                         <div class="item-row">
                             <div class="item-info">
-                                <h4>{{ prod.nombreproducto }}</h4>
-                                <p>{{ prod.tiposproducto }}{% if prod.fechapublicacion %} • {{ prod.fechapublicacion|date:"Y" }}{% endif %}</p>
+                                <h4>{{ prod.nombrerecurso }}</h4>
+                                <p>{{ prod.clasificador }}{% if prod.fecha_registro %} • {{ prod.fecha_registro|date:"Y" }}{% endif %}</p>
                             </div>
-                            <a href="{% url 'editar_producto_academico' prod.idproducto %}" class="btn-item-edit">✏️ Editar</a>
+                            <a href="{% url 'editar_producto_academico' prod.idproductoacademico %}" class="btn-item-edit">✏️ Editar</a>
                         </div>
                         {% endfor %}
                     </div>
@@ -259,9 +262,9 @@
                         <div class="item-row">
                             <div class="item-info">
                                 <h4>{{ prod.nombreproducto }}</h4>
-                                <p>Producto laboral</p>
+                                <p>{% if prod.fechaproducto %}{{ prod.fechaproducto|date:"Y" }}{% else %}Producto laboral{% endif %}</p>
                             </div>
-                            <a href="{% url 'editar_producto_laboral' prod.idproducto %}" class="btn-item-edit">✏️ Editar</a>
+                            <a href="{% url 'editar_producto_laboral' prod.idproductoslaborales %}" class="btn-item-edit">✏️ Editar</a>
                         </div>
                         {% endfor %}
                     </div>
@@ -293,7 +296,7 @@
                                 <h4>{{ venta.nombreproducto }}</h4>
                                 <p>${{ venta.valordelbien|floatformat:2 }} • {{ venta.estadoproducto }}</p>
                             </div>
-                            <a href="{% url 'editar_venta' venta.idventa %}" class="btn-item-edit">✏️ Editar</a>
+                            <a href="{% url 'editar_venta' venta.idventagarage %}" class="btn-item-edit">✏️ Editar</a>
                         </div>
                         {% endfor %}
                     </div>
