@@ -3,360 +3,446 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Hoja de Vida Profesional</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ datos.nombres }} {{ datos.apellidos }}</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        /* MANTENIENDO TU PALETA DE COLORES OSCUROS */
+        :root {
+            --fondo-oscuro: #1a1c31;
+            --fondo-tarjeta: #242744;
+            --cian-primario: #00f2ea;
+            --texto-gris: #a0a0a0;
+        }
+
+        .cv-main { 
+            background-color: var(--fondo-oscuro); 
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        /* Foto de perfil circular en el Sidebar */
+        .sidebar-perfil {
+            text-align: center;
+            padding: 20px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .perfil-foto img {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 3px solid var(--cian-primario);
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-nombre { 
+            font-size: 1.2rem; 
+            color: var(--cian-primario); 
+            line-height: 1.2;
+        }
+
+        /* Lógica de ocultar/mostrar secciones */
+        .cv-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .cv-section.active {
+            display: block;
+        }
+
+        /* Estilo de tus tarjetas oscuras */
+        .admin-card {
+            background-color: var(--fondo-tarjeta);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-top: 15px;
+            color: white;
+        }
+
+        .section-header-admin h2 {
+            color: var(--cian-primario);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .venta-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid var(--cian-primario);
+        }
+    </style>
 </head>
 
 <body class="cv-page">
 
-<div class="cv-wrapper">
-    <!-- SIDEBAR IZQUIERDO -->
-    <aside class="cv-sidebar">
-        <div class="sidebar-content">
-            <!-- FOTO Y NOMBRE -->
-            <div class="sidebar-perfil">
-                {% if datos.foto %}
-                    <img src="{{ datos.foto.url }}" class="sidebar-foto" onerror="this.style.display='none'">
-                {% else %}
-                    <div class="sidebar-foto placeholder-foto">
-                        Sin foto
-                    </div>
-                {% endif %}
-                <h2 class="sidebar-nombre">{{ datos.nombres }} {{ datos.apellidos }}</h2>
-                <p class="sidebar-profesion">{{ datos.descripcionperfil|default:"Profesional" }}</p>
-            </div>
+{% if datos %}
+<div class="admin-wrapper">
+    <aside class="admin-sidebar" style="background-color: #242744;">
+<div class="sidebar-perfil">
+    <div class="perfil-foto">
+        {% if datos.foto %}
+            <img src="{{ datos.foto.url }}" alt="Foto de Perfil">
+        {% else %}
+            <img src="{% static 'img/default-profile.png' %}" alt="Sin foto">
+        {% endif %}
+    </div>
+    <h2 class="sidebar-nombre">{{ datos.nombres }} {{ datos.apellidos }}</h2>
+</div>
 
-            <hr class="sidebar-divider">
+        <nav class="sidebar-nav">
+            <a href="javascript:void(0)" onclick="showSection('datos-personales')" class="nav-item">👤 DATOS PERSONALES</a>
+            <a href="javascript:void(0)" onclick="showSection('experiencia')" class="nav-item">💼 EXPERIENCIA LABORAL</a>
+            <a href="javascript:void(0)" onclick="showSection('cursos')" class="nav-item">🎓 CURSOS REALIZADOS</a>
+            <a href="javascript:void(0)" onclick="showSection('reconocimientos')" class="nav-item">🏆 RECONOCIMIENTOS</a>
+            <a href="javascript:void(0)" onclick="showSection('productos-academicos')" class="nav-item">📚 PRODUCTOS ACADÉMICOS</a>
+            <a href="javascript:void(0)" onclick="showSection('productos-laborales')" class="nav-item">💻 PRODUCTOS LABORALES</a>
+            <a href="javascript:void(0)" onclick="showSection('ventas')" class="nav-item">🛒 VENTA GARAGE</a>
+        </nav>
 
-            <!-- NAVEGACIÓN -->
-            <nav class="sidebar-nav">
-                <a href="#inicio" class="nav-item">🏠 Inicio</a>
-                {% if datos.mostrar_experiencia %}
-                    <a href="#experiencia" class="nav-item">💼 Experiencia</a>
-                {% endif %}
-                {% if datos.mostrar_cursos %}
-                    <a href="#cursos" class="nav-item">🎓 Cursos</a>
-                {% endif %}
-                {% if datos.mostrar_reconocimientos %}
-                    <a href="#reconocimientos" class="nav-item">🏆 Reconocimientos</a>
-                {% endif %}
-                {% if datos.mostrar_productos_laborales %}
-                    <a href="#productos-laborales" class="nav-item">🚀 Productos Laborales</a>
-                {% endif %}
-                {% if datos.mostrar_productos_academicos %}
-                    <a href="#productos-academicos" class="nav-item">📚 Productos Académicos</a>
-                {% endif %}
-                {% if datos.mostrar_ventas %}
-                    <a href="#garage" class="nav-item">🛍️ Garage</a>
-                {% endif %}
-            </nav>
-
-            <hr class="sidebar-divider">
-
-            <!-- BOTONES DE ACCIÓN -->
-            {% if not es_pdf %}
-            <div class="sidebar-actions">
-                <a href="{% url 'panel_admin' %}" class="btn-sidebar admin-btn">⚙️ Configurar Menú</a>
-                <a href="{% url 'descargar_cv_pdf' %}" class="btn-sidebar pdf-btn" target="_blank">📥 Descargar PDF</a>
-            </div>
-            {% endif %}
+        <div class="sidebar-actions" style="padding: 20px;">
+            <a href="{% url 'panel_admin' %}" class="btn-sidebar admin-btn" style="background-color: var(--cian-primario); color: #1a1c31; border-radius: 8px; text-align: center; display: block; padding: 10px; font-weight: bold;">Administrar CV</a>
         </div>
     </aside>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <main class="cv-main">
-        <div class="cv-container" id="inicio">
+        <div class="cv-container">
 
-<!-- DATOS PERSONALES -->
-<section class="section-header" id="inicio">
-    <h1>Información Personal</h1>
-    <p>Detalle completo del perfil profesional.</p>
-</section>
-
-<div class="card perfil" id="datos-personales">
-    <div class="perfil-content">
-        <div class="perfil-foto-container">
-            {% if datos.foto %}
-                <img src="{{ datos.foto.url }}" class="foto-perfil" onerror="this.style.display='none'">
-            {% else %}
-                <div class="foto-perfil" style="background-color: #ddd; display: flex; align-items: center; justify-content: center; color: #999;">
-                    Sin foto
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="perfil-info">
-            <h2>{{ datos.nombres }} {{ datos.apellidos }}</h2>
+            <section id="datos-personales" class="cv-section active">
+    <div class="section-header-admin">
+        <h2>👤 DATOS PERSONALES</h2>
+    </div>
+    <div class="admin-card">
+        <div class="personal-data-container" style="display: flex; flex-direction: column; gap: 15px;">
             
-            {% if datos.descripcionperfil %}
-                <p class="perfil-descripcion">{{ datos.descripcionperfil }}</p>
+            {% if datos.numerocedula %}
+            <div style="display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <span style="font-weight: bold; color: var(--cian-primario); text-transform: uppercase;">Cédula:</span>
+                <span>{{ datos.numerocedula }}</span>
+            </div>
             {% endif %}
 
-            <div class="perfil-grid">
-                <div class="perfil-column">
-                    <h4>🆔 Identificación</h4>
-                    {% if datos.numerocedula %}
-                        <p><strong>Cédula:</strong> {{ datos.numerocedula }}</p>
-                    {% endif %}
-                    {% if datos.nacionalidad %}
-                        <p><strong>Nacionalidad:</strong> {{ datos.nacionalidad }}</p>
-                    {% endif %}
-                    {% if datos.lugarnacimiento %}
-                        <p><strong>Lugar Nacimiento:</strong> {{ datos.lugarnacimiento }}</p>
-                    {% endif %}
-                    {% if datos.fechanacimiento %}
-                        <p><strong>Fecha Nacimiento:</strong> {{ datos.fechanacimiento|date:"d \d\e F, Y" }}</p>
-                    {% endif %}
-                    {% if datos.sexo %}
-                        <p><strong>Sexo:</strong> {% if datos.sexo == 'M' %}Mujer{% else %}Hombre{% endif %}</p>
-                    {% endif %}
-                </div>
-
-                <div class="perfil-column">
-                    <h4>📞 Contacto</h4>
-                    {% if datos.estadocivil %}
-                        <p><strong>Estado Civil:</strong> {{ datos.estadocivil }}</p>
-                    {% endif %}
-                    {% if datos.licenciaconducir %}
-                        <p><strong>Licencia:</strong> {{ datos.licenciaconducir }}</p>
-                    {% endif %}
-                    <p><strong>Teléfonos:</strong> 
-                        {% if datos.telefonoconvencional %}{{ datos.telefonoconvencional }}{% else %}-----------{% endif %} / 
-                        {% if datos.telefonofijo %}{{ datos.telefonofijo }}{% else %}----------{% endif %}
-                    </p>
-                    {% if datos.sitioweb %}
-                        <p><strong>Web:</strong> <a href="{{ datos.sitioweb }}" target="_blank" class="link-primary">Visitar</a></p>
-                    {% endif %}
-                </div>
+            {% if datos.nacionalidad %}
+            <div style="display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <span style="font-weight: bold; color: var(--cian-primario); text-transform: uppercase;">Nacionalidad:</span>
+                <span>{{ datos.nacionalidad }}</span>
             </div>
+            {% endif %}
 
-            <div class="perfil-grid perfil-direcciones">
-                <div class="perfil-column">
-                    {% if datos.direcciondomiciliaria %}
-                        <h4>🏠 Domicilio:</h4>
-                        <p>{{ datos.direcciondomiciliaria }}</p>
-                    {% endif %}
-                </div>
-                <div class="perfil-column">
-                    {% if datos.direcciontrabajo %}
-                        <h4>🏢 Trabajo:</h4>
-                        <p>{{ datos.direcciontrabajo }}</p>
-                    {% endif %}
-                </div>
+            {% if datos.fechanacimiento %}
+            <div style="display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <span style="font-weight: bold; color: var(--cian-primario); text-transform: uppercase;">Nacimiento:</span>
+                <span>{{ datos.fechanacimiento|date:"d/m/Y" }}</span>
             </div>
+            {% endif %}
+
+            {% if datos.lugarnacimiento %}
+            <div style="display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <span style="font-weight: bold; color: var(--cian-primario); text-transform: uppercase;">Lugar:</span>
+                <span>{{ datos.lugarnacimiento }}</span>
+            </div>
+            {% endif %}
+
+            {% if datos.estadocivil %}
+            <div style="display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <span style="font-weight: bold; color: var(--cian-primario); text-transform: uppercase;">Estado Civil:</span>
+                <span>{{ datos.estadocivil }}</span>
+            </div>
+            {% endif %}
+
+            {% if datos.sexo %}
+            <div style="display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <span style="font-weight: bold; color: var(--cian-primario); text-transform: uppercase;">Sexo:</span>
+                <span>{% if datos.sexo == 'H' %}Hombre{% else %}Mujer{% endif %}</span>
+            </div>
+            {% endif %}
+
+            {% if datos.telefonocelular %}
+            <div style="display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <span style="font-weight: bold; color: var(--cian-primario); text-transform: uppercase;">Celular:</span>
+                <span>{{ datos.telefonocelular }}</span>
+            </div>
+            {% endif %}
+
+            {% if datos.sitioweb %}
+            <div style="display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <span style="font-weight: bold; color: var(--cian-primario); text-transform: uppercase;">Sitio Web:</span>
+                <span><a href="{{ datos.sitioweb }}" target="_blank" style="color: white; text-decoration: none; border-bottom: 1px solid var(--cian-primario);">{{ datos.sitioweb }}</a></span>
+            </div>
+            {% endif %}
+
         </div>
     </div>
-</div>
+</section>
 
-<!-- EXPERIENCIA LABORAL -->
-{% if experiencias and datos.mostrar_experiencia %}
-<section class="section-header" id="experiencia">
-    <h1>💼 Experiencia Laboral</h1>
-    <p>Experiencia académica y práctica adquirida a lo largo de mi proceso de formación profesional.</p>
-</section>
-<div class="card">
-    {% for e in experiencias %}
-        <div class="item">
-            <h3 class="item-title">{{ e.cargo }}</h3>
-            <p class="item-subtitle">{{ e.empresa }} | {{ e.fechainicio|date:"b Y"|upper }} - {% if e.fechafin %}{{ e.fechafin|date:"b Y"|upper }}{% else %}Actualidad{% endif %}</p>
-            {% if e.descripcion %}
-                <p class="item-description">{{ e.descripcion }}</p>
-            {% endif %}
-        </div>
-    {% endfor %}
-<section class="section-header" id="cursos">
-    <h1>🎓 Cursos Realizados</h1>
-    <p>Formación académica y certificaciones obtenidas durante mi proceso de aprendizaje.</p>
-</section>
-<div class="cursos-grid">
-    {% for c in cursos %}
-        <div class="card-curso">
-            <div class="curso-header">
-                <h3 class="curso-titulo">{{ c.nombrecurso }}</h3>
-                {% if c.fechainicio %}
-                    <span class="curso-horas">{{ c.entidadpatrocinadora }}</span>
-                {% endif %}
-            </div>
-            <p class="curso-fecha">
-                {% if c.fechainicio %}
-                    {{ c.fechainicio|date:"b Y"|upper }}
-                    {% if c.fechafin %}- {{ c.fechafin|date:"b Y"|upper }}{% endif %}
-                {% endif %}
+            <section id="experiencia" class="cv-section">
+    <div class="section-header-admin">
+        <h2>💼 EXPERIENCIA LABORAL</h2>
+    </div>
+
+    {% if experiencias %}
+        {% for exp in experiencias %}
+        <div class="admin-card" style="margin-bottom: 25px; border-left: 4px solid var(--cian-primario);">
+            <h3 style="color: var(--cian-primario); margin: 0; text-transform: uppercase; font-size: 1.2rem;">
+                {{ exp.cargodesempenado }}
+            </h3>
+
+            <p style="margin: 5px 0; font-weight: bold; color: #fff;">
+                {{ exp.nombrempresa }} <span style="color: var(--texto-gris); font-weight: normal;">| {{ exp.lugarempresa }}</span>
             </p>
-            {% if c.descripcion %}
-                <p class="curso-descripcion">{{ c.descripcion }}</p>
-            {% endif %}
-            <div class="curso-footer">
-                {% if c.archivo_certificado %}
-                    <button class="btn-view-cert">👁️ Ver Certificado</button>
-                    {% if c.archivo_certificado.url|slice:":4" == "http" %}
-                        <a href="{{ c.archivo_certificado.url }}" target="_blank" class="btn-download-pdf">⬇️ Descargar PDF</a>
+
+            <div style="margin: 10px 0;">
+                <span style="background: rgba(0, 242, 234, 0.1); color: var(--cian-primario); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; border: 1px solid rgba(0, 242, 234, 0.3);">
+                    {{ exp.fechainiciogestion|date:"m/Y" }} - 
+                    {% if exp.fechafingestion %}
+                        {{ exp.fechafingestion|date:"m/Y" }}
                     {% else %}
-                        <a href="https://res.cloudinary.com/drexsapbv{{ c.archivo_certificado.url }}" target="_blank" class="btn-download-pdf">⬇️ Descargar PDF</a>
+                        Actualidad
                     {% endif %}
-                {% else %}
-                    <span class="sin-certificado">ℹ️ Sin certificado adjunto</span>
-                {% endif %}
+                </span>
             </div>
-        </div>
-    {% endfor %}
-</div>
-{% endif %}
 
-<!-- RECONOCIMIENTOS -->
-{% if reconocimientos and datos.mostrar_reconocimientos %}
-<section class="section-header" id="reconocimientos">
-    <h1>🏆 Reconocimientos Académicos</h1>
-    <p>Menciones y honores obtenidos por excelencia y desempeño.</p>
-</section>
-<div class="reconocimientos-grid">
-    {% for r in reconocimientos %}
-        <div class="card-reconocimiento">
-            <h3 class="reco-titulo">{{ r.tiporeconocimiento }}</h3>
-            <p class="reco-entidad">
-                {% if r.idperfilconqueestaactivo.nombrecontactoauspicia %}
-                    🏢 {{ r.entidadpatrocinadora }}
-                {% else %}
-                    🏢 {{ r.entidadpatrocinadora }}
-                {% endif %}
+            <p style="color: var(--texto-gris); line-height: 1.5; margin-top: 15px;">
+                {{ exp.descripcionfunciones }}
             </p>
-            {% if r.fechareconocimiento %}
-                <p class="reco-fecha">📅 {{ r.fechareconocimiento|date:"Y" }}</p>
+
+            {% if exp.rutacertificado %}
+            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
+                <a href="{{ exp.rutacertificado.url }}" target="_blank" style="color: var(--cian-primario); text-decoration: none; font-size: 0.9rem; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                    📄 Ver Certificado
+                </a>
+            </div>
             {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="admin-card">
+            <p style="color: var(--texto-gris); text-align: center; margin: 0;">No hay experiencia laboral registrada actualmente.</p>
+        </div>
+    {% endif %}
+</section>
+
+            <section id="cursos" class="cv-section">
+    <div class="section-header-admin">
+        <h2>🎓 CURSOS REALIZADOS</h2>
+    </div>
+
+    {% if cursos %}
+        {% for c in cursos %}
+        <div class="admin-card" style="margin-bottom: 25px; background-color: var(--fondo-tarjeta);">
+            
+            <h3 style="color: var(--cian-primario); margin: 0; text-transform: uppercase; font-size: 1.1rem;">
+                {{ c.nombrecurso }}
+            </h3>
+
+            <p style="margin: 5px 0; color: var(--texto-gris); font-size: 0.9rem;">
+                {% if c.numerohoras %}{{ c.numerohoras }} horas{% endif %}
+                {% if c.anio %} | {{ c.anio }}{% endif %}
+            </p>
+
+            <p style="margin: 10px 0; color: #fff;">
+                <strong>Impartido por:</strong> {{ c.entidadpatrocinadora }}
+            </p>
+
+            {% if c.descripcioncurso %}
+            <p style="color: var(--texto-gris); font-size: 0.95rem; line-height: 1.4;">
+                {{ c.descripcioncurso }}
+            </p>
+            {% endif %}
+
+            {% if c.rutacertificado %}
+            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
+                <a href="{{ c.rutacertificado.url }}" target="_blank" style="color: var(--cian-primario); text-decoration: underline; font-size: 0.9rem;">
+                    Ver Certificado
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="admin-card">
+            <p style="color: var(--texto-gris); text-align: center; margin: 0;">No hay cursos registrados actualmente.</p>
+        </div>
+    {% endif %}
+</section>
+
+            <section id="reconocimientos" class="cv-section">
+    <div class="section-header-admin">
+        <h2>🏆 RECONOCIMIENTOS</h2>
+    </div>
+
+    {% if reconocimientos %}
+        {% for r in reconocimientos %}
+        <div class="admin-card" style="margin-bottom: 25px; border-left: 4px solid var(--cian-primario);">
+            
+            <h3 style="color: var(--cian-primario); margin: 0; text-transform: uppercase; font-size: 1.1rem;">
+                {{ r.tiporeconocimiento }}
+            </h3>
+
+            <p style="margin: 5px 0; color: var(--texto-gris); font-size: 0.9rem;">
+                Académico | {{ r.fecha_obtencion|date:"d/m/Y" }}
+            </p>
+
+            <p style="margin: 10px 0; color: #fff;">
+                <strong>Otorgado por:</strong> {{ r.entidadpatrocinadora }}
+            </p>
+
             {% if r.descripcionreconocimiento %}
-                <p class="reco-descripcion">{{ r.descripcionreconocimiento }}</p>
+            <p style="color: var(--texto-gris); font-size: 0.95rem; line-height: 1.4;">
+                {{ r.descripcionreconocimiento }}
+            </p>
             {% endif %}
-            <div class="reco-footer">
-                {% if r.archivo_certificado %}
-                    <button class="btn-view-cert">👁️ Ver Certificado</button>
-                    {% if r.archivo_certificado.url|slice:":4" == "http" %}
-                        <a href="{{ r.archivo_certificado.url }}" target="_blank" class="btn-download-pdf">⬇️ Descargar PDF</a>
-                    {% else %}
-                        <a href="https://res.cloudinary.com/drexsapbv{{ r.archivo_certificado.url }}" target="_blank" class="btn-download-pdf">⬇️ Descargar PDF</a>
-                    {% endif %}
-                {% endif %}
-            </div>
-        </div>
-    {% endfor %}
-</div>
-{% endif %}
 
-<!-- PRODUCTOS ACADÉMICOS -->
-{% if productos_academicos and datos.mostrar_productos_academicos %}
-<section class="section-header" id="productos-academicos">
-    <h1>📚 Productos Académicos</h1>
-    <p>Trabajos, investigaciones y proyectos académicos realizados.</p>
+            {% if r.certificado %}
+            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
+                <a href="{{ r.certificado.url }}" target="_blank" style="color: var(--cian-primario); text-decoration: underline; font-size: 0.9rem;">
+                    Ver Certificado
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="admin-card">
+            <p style="color: var(--texto-gris); text-align: center; margin: 0;">No hay reconocimientos registrados.</p>
+        </div>
+    {% endif %}
 </section>
-<div class="productos-grid">
+
+           <section id="productos-academicos" class="cv-section">
+    <div class="section-header-admin">
+        <h2>📚 PRODUCTOS ACADÉMICOS</h2>
+    </div>
     {% for p in productos_academicos %}
-        <div class="card-producto">
-            <h3 class="prod-titulo">{{ p.nombreproducto }}</h3>
-            <p class="prod-tipo">{{ p.tiposproducto }}</p>
-            {% if p.fechapublicacion %}
-                <p class="prod-fecha">📅 {{ p.fechapublicacion|date:"b Y"|upper }}</p>
-            {% endif %}
-            {% if p.descripcion %}
-                <p class="prod-descripcion">{{ p.descripcion }}</p>
-            {% endif %}
-            <div class="prod-footer">
-                {% if p.enlace %}
-                    <a href="{{ p.enlace }}" target="_blank" class="btn-link">🔗 Ver más</a>
-                {% endif %}
-                {% if p.archivo %}
-                    {% if p.archivo.url|slice:":4" == "http" %}
-                        <a href="{{ p.archivo.url }}" target="_blank" class="btn-download">📥 Descargar</a>
-                    {% else %}
-                        <a href="https://res.cloudinary.com/drexsapbv{{ p.archivo.url }}" target="_blank" class="btn-download">📥 Descargar</a>
-                    {% endif %}
-                {% endif %}
+    <div class="admin-card" style="margin-bottom: 20px; border-left: 4px solid var(--cian-primario);">
+        <h3 style="color: #fff; text-transform: uppercase; margin-bottom: 5px;">{{ p.nombrerecurso }}</h3>
+        <p style="color: var(--cian-primario); font-weight: bold; font-size: 0.9rem; margin-bottom: 10px;">
+            Categoría: {{ p.clasificador }}
+        </p>
+        <p style="color: var(--texto-gris); line-height: 1.4;">{{ p.descripcion }}</p>
+        
+        {% if p.link %}
+            <div style="margin-top: 15px;">
+                <a href="{{ p.link }}" target="_blank" style="color: var(--cian-primario); text-decoration: none; font-weight: bold; border: 1px solid var(--cian-primario); padding: 5px 10px; border-radius: 5px; font-size: 0.8rem;">
+                    🔗 VER RECURSO
+                </a>
             </div>
-        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="admin-card">
+        <p style="color: #666; text-align: center;">No hay productos académicos registrados.</p>
+    </div>
     {% endfor %}
-</div>
-{% endif %}
-
-<!-- PRODUCTOS LABORALES -->
-{% if productos_laborales and datos.mostrar_productos_laborales %}
-<section class="section-header" id="productos-laborales">
-    <h1>🚀 Productos Laborales</h1>
-    <p>Proyectos y logros profesionales realizados en el campo laboral.</p>
 </section>
-<div class="productos-grid">
+
+            <section id="productos-laborales" class="cv-section">
+    <div class="section-header-admin">
+        <h2>🛠️ PRODUCTOS LABORALES</h2>
+    </div>
     {% for pl in productos_laborales %}
-        <div class="card-producto">
-            <h3 class="prod-titulo">{{ pl.nombreproducto }}</h3>
-            {% if pl.descripcion %}
-                <p class="prod-descripcion">{{ pl.descripcion }}</p>
-            {% endif %}
-            <div class="prod-footer">
-                {% if pl.enlace %}
-                    <a href="{{ pl.enlace }}" target="_blank" class="btn-link">🔗 Ver más</a>
-                {% endif %}
-                {% if pl.archivo %}
-                    {% if pl.archivo.url|slice:":4" == "http" %}
-                        <a href="{{ pl.archivo.url }}" target="_blank" class="btn-download">📥 Descargar</a>
-                    {% else %}
-                        <a href="https://res.cloudinary.com/drexsapbv{{ pl.archivo.url }}" target="_blank" class="btn-download">📥 Descargar</a>
-                    {% endif %}
-                {% endif %}
+    <div class="admin-card" style="margin-bottom: 20px; border-left: 4px solid #ff4d4d;">
+        <h3 style="color: #fff; text-transform: uppercase; margin-bottom: 5px;">{{ pl.nombreproducto }}</h3>
+        <p style="color: var(--texto-gris); font-size: 0.8rem; margin-bottom: 10px;">
+            📅 Fecha: {{ pl.fechaproducto|date:"d/m/Y"|default:"No especificada" }}
+        </p>
+        <p style="color: var(--texto-gris); line-height: 1.4;">{{ pl.descripcion }}</p>
+        
+        {% if pl.link %}
+            <div style="margin-top: 15px;">
+                <a href="{{ pl.link }}" target="_blank" style="color: #ff4d4d; text-decoration: none; font-weight: bold; border: 1px solid #ff4d4d; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem;">
+                    🚀 VER PROYECTO
+                </a>
             </div>
-        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="admin-card">
+        <p style="color: #666; text-align: center;">No hay productos laborales registrados.</p>
+    </div>
     {% endfor %}
-</div>
-{% endif %}
-
-<!-- VENTA GARAGE -->
-{% if ventas and datos.mostrar_ventas %}
-<section class="section-header" id="garage">
-    <h1>🛍️ Venta de Garage</h1>
-    <p>Artículos en buen estado. ¡Echa un vistazo a lo disponible!</p>
 </section>
-<div class="garage-grid">
-    {% for v in ventas %}
-        <div class="card-venta">
-            {% if v.imagen %}
-                {% if v.imagen.url|slice:":4" == "http" %}
-                    <img src="{{ v.imagen.url }}" alt="{{ v.nombreproducto }}" class="venta-imagen">
-                {% else %}
-                    <img src="https://res.cloudinary.com/drexsapbv{{ v.imagen.url }}" alt="{{ v.nombreproducto }}" class="venta-imagen">
-                {% endif %}
-            {% else %}
-                <div class="venta-imagen placeholder-imagen">Sin imagen</div>
-            {% endif %}
-            <div class="venta-info">
-                <h3 class="venta-titulo">{{ v.nombreproducto }}</h3>
-                <div class="venta-estado">
-                    {% if v.estadoproducto == "Bueno" %}
-                        <span class="badge-bueno">{{ v.estadoproducto }}</span>
-                    {% elif v.estadoproducto == "Regular" %}
-                        <span class="badge-regular">{{ v.estadoproducto }}</span>
-                    {% else %}
-                        <span class="badge-malo">{{ v.estadoproducto }}</span>
-                    {% endif %}
+
+            <section id="ventas" class="cv-section">
+    <div class="section-header-admin">
+        <h2>🛒 VENTA GARAGE</h2>
+    </div>
+
+    {% if ventas %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+            {% for v in ventas %}
+            <div class="admin-card" style="background-color: var(--fondo-tarjeta); border: 1px solid rgba(255,255,255,0.05); overflow: hidden; display: flex; flex-direction: column;">
+                
+                {% if v.imagen_producto %}
+                <div style="width: 100%; height: 200px; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                    <img src="{{ v.imagen_producto.url }}" alt="{{ v.nombreproducto }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                 </div>
-                <p class="venta-precio">${{ v.valordelbien|floatformat:2 }}</p>
-                {% if v.descripcion %}
-                    <p class="venta-descripcion">{{ v.descripcion }}</p>
                 {% endif %}
-                {% if v.fechapublicacion %}
-                    <p class="venta-fecha">Publicado el {{ v.fechapublicacion|date:"d \d\e F, Y" }}</p>
-                {% endif %}
-                {% if v.archivo %}
-                    {% if v.archivo.url|slice:":4" == "http" %}
-                        <a href="{{ v.archivo.url }}" target="_blank" class="btn-archivo">📄 Ver documento</a>
-                    {% else %}
-                        <a href="https://res.cloudinary.com/drexsapbv{{ v.archivo.url }}" target="_blank" class="btn-archivo">📄 Ver documento</a>
-                    {% endif %}
-                {% endif %}
+
+                <div style="padding: 15px; flex-grow: 1;">
+                    <h3 style="color: #fff; margin: 0 0 5px 0; font-size: 1.1rem; font-weight: bold;">
+                        {{ v.nombreproducto }}
+                    </h3>
+
+                    <p style="margin: 0 0 10px 0; color: var(--texto-gris); font-size: 0.8rem;">
+                        Publicado el: {{ v.fecha_publicacion|date:"d/m/Y"|default:"29/01/2026" }}
+                    </p>
+
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="background: #ffc107; color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; text-transform: uppercase;">
+                            {{ v.estado|default:"Regular" }}
+                        </span>
+                        <span style="color: var(--cian-primario); font-size: 1.1rem; font-weight: bold;">
+                            | ${{ v.valordelbien }}
+                        </span>
+                    </div>
+
+                    <p style="color: var(--texto-gris); font-size: 0.9rem; line-height: 1.4; margin: 0;">
+                        {{ v.descripcion|truncatewords:20|default:"Sin descripción adicional." }}
+                    </p>
+                </div>
             </div>
+            {% endfor %}
         </div>
-    {% endfor %}
-</div>
-{% endif %}
+    {% else %}
+        <div class="admin-card">
+            <p style="color: var(--texto-gris); text-align: center; margin: 0;">No hay artículos en venta actualmente.</p>
+        </div>
+    {% endif %}
+</section>
 
         </div>
     </main>
 </div>
+{% endif %}
+
+<script>
+    function showSection(sectionId) {
+        // Ocultar todas las secciones
+        const sections = document.querySelectorAll('.cv-section');
+        sections.forEach(section => {
+            section.classList.remove('active');
+        });
+
+        // Mostrar solo la seleccionada
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.classList.add('active');
+        }
+    }
+</script>
 
 </body>
 </html>

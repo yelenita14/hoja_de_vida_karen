@@ -65,7 +65,7 @@ class DatosPersonales(models.Model):
     imprimir_venta_garage = models.BooleanField(default=True, verbose_name="¿Imprimir Venta Garage?")
     
     class Meta:
-        db_table = 'datospersonales'
+        db_table = 'hojavida_datospersonales'
         verbose_name = 'Datos Personales'
         verbose_name_plural = 'Datos Personales'
 
@@ -92,7 +92,7 @@ class ExperienciaLaboral(models.Model):
     rutacertificado = CloudinaryField('raw', folder='certificados/experiencia/', blank=True, null=True)
     
     class Meta:
-        db_table = 'experiencialaboral'
+        db_table = 'hojavida_experiencialaboral'
         ordering = ['-fechainiciogestion']
         verbose_name = 'Experiencia Laboral'
         verbose_name_plural = 'Experiencias Laborales'
@@ -129,7 +129,7 @@ class Reconocimientos(models.Model):
     rutacertificado = CloudinaryField('raw', folder='certificados/reconocimientos/', blank=True, null=True)
     
     class Meta:
-        db_table = 'reconocimientos'
+        db_table = 'hojavida_reconocimientos'
         ordering = ['-fechareconocimiento']
         verbose_name = 'Reconocimiento'
         verbose_name_plural = 'Reconocimientos'
@@ -158,7 +158,7 @@ class CursosRealizados(models.Model):
     rutacertificado = CloudinaryField('raw', folder='certificados/cursos/', blank=True, null=True)
     
     class Meta:
-        db_table = 'cursosrealizados'
+        db_table = 'hojavida_cursosrealizados'
         ordering = ['-fechainicio']
         verbose_name = 'Curso Realizado'
         verbose_name_plural = 'Cursos Realizados'
@@ -194,7 +194,7 @@ class ProductosAcademicos(models.Model):
     fecha_registro = models.DateField(default=date.today, validators=[validar_fecha_no_futura])
 
     class Meta:
-        db_table = 'productosacademicos'
+        db_table = 'hojavida_productosacademicos'
         ordering = ['-fecha_registro']
         verbose_name = 'Producto Académico'
         verbose_name_plural = 'Productos Académicos'
@@ -214,7 +214,7 @@ class ProductosLaborales(models.Model):
     activarparaqueseveaenfront = models.BooleanField(default=True)
     
     class Meta:
-        db_table = 'productoslaborales'
+        db_table = 'hojavida_productoslaborales'
         ordering = ['-fechaproducto']
         verbose_name = 'Producto Laboral'
         verbose_name_plural = 'Productos Laborales'
@@ -242,7 +242,7 @@ class VentaGarage(models.Model):
     activarparaqueseveaenfront = models.BooleanField(default=True)
     
     class Meta:
-        db_table = 'ventagarage'
+        db_table = 'hojavida_ventas'
         ordering = ['-fecha_publicacion']
         verbose_name = 'Venta Garage'
         verbose_name_plural = 'Ventas Garage'

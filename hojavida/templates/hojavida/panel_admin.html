@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración</title>
+    <title>Panel Administrativo | CV</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
@@ -11,82 +11,127 @@
 <body class="cv-page">
 
 <div class="admin-wrapper">
-    <!-- SIDEBAR IZQUIERDO -->
+    <!-- SIDEBAR -->
     <aside class="admin-sidebar">
         <div class="sidebar-content">
-            <!-- PERFIL ADMIN -->
             <div class="sidebar-perfil">
-                <div class="admin-icon">⚙️</div>
-                <h2 class="sidebar-nombre">Panel Admin</h2>
+                <h2 class="sidebar-nombre">Panel de administración</h2>
                 <p class="sidebar-profesion">{{ user.username }}</p>
             </div>
 
-            <hr class="sidebar-divider">
-
-            <!-- NAVEGACIÓN -->
             <nav class="sidebar-nav">
-                <a href="#datos" class="nav-item">👤 Datos Personales</a>
-                <a href="#experiencia" class="nav-item">💼 Experiencia</a>
-                <a href="#cursos" class="nav-item">🎓 Cursos</a>
-                <a href="#productos-academicos" class="nav-item">📚 Productos Académicos</a>
-                <a href="#productos-laborales" class="nav-item">🚀 Productos Laborales</a>
-                <a href="#reconocimientos" class="nav-item">🏆 Reconocimientos</a>
-                <a href="#ventas" class="nav-item">🛍️ Ventas</a>
+                <a href="{% url 'panel_admin' %}?seccion=datos" class="nav-item {% if request.GET.seccion == 'datos' or not request.GET.seccion %}active{% endif %}">
+                    <span>👤</span>
+                    <span>Datos Personales</span>
+                </a>
+                <a href="{% url 'panel_admin' %}?seccion=experiencia" class="nav-item {% if request.GET.seccion == 'experiencia' %}active{% endif %}">
+                    <span>💼</span>
+                    <span>Experiencia Laboral</span>
+                </a>
+                <a href="{% url 'panel_admin' %}?seccion=cursos" class="nav-item {% if request.GET.seccion == 'cursos' %}active{% endif %}">
+                    <span>🎓</span>
+                    <span>Cursos Realizados</span>
+                </a>
+                <a href="{% url 'panel_admin' %}?seccion=reconocimientos" class="nav-item {% if request.GET.seccion == 'reconocimientos' %}active{% endif %}">
+                    <span>🏆</span>
+                    <span>Reconocimientos</span>
+                </a>
+                <a href="{% url 'panel_admin' %}?seccion=academicos" class="nav-item {% if request.GET.seccion == 'academicos' %}active{% endif %}">
+                    <span>📚</span>
+                    <span>Productos Académicos</span>
+                </a>
+                <a href="{% url 'panel_admin' %}?seccion=laborales" class="nav-item {% if request.GET.seccion == 'laborales' %}active{% endif %}">
+                    <span>💻</span>
+                    <span>Productos Laborales</span>
+                </a>
+                <a href="{% url 'panel_admin' %}?seccion=ventas" class="nav-item {% if request.GET.seccion == 'ventas' %}active{% endif %}">
+                    <span>🛒</span>
+                    <span>Venta Garage</span>
+                </a>
             </nav>
 
-            <hr class="sidebar-divider">
-
-            <!-- BOTONES DE ACCIÓN -->
             <div class="sidebar-actions">
-                <a href="{% url 'mi_hoja_vida' %}" class="btn-sidebar admin-btn">👁️ Ver CV Público</a>
-                <a href="{% url 'logout' %}" class="btn-sidebar logout-btn">🚪 Cerrar sesión</a>
+                <a href="{% url 'mi_hoja_vida' %}" class="btn-sidebar admin-btn">
+                    Ver CV Público
+                </a>
+                <a href="{% url 'logout' %}" class="btn-sidebar logout-btn">
+                    Cerrar Sesión
+                </a>
             </div>
         </div>
     </aside>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="cv-main admin-main">
+    <!-- CONTENIDO -->
+    <main class="cv-main">
         <div class="cv-container">
-            <!-- HEADER DE BIENVENIDA -->
-            <section class="admin-welcome">
-                <h1>Hola, <span class="username">{{ user.username }}</span> 👋</h1>
-                <p>Gestiona tu hoja de vida profesional desde aquí</p>
-            </section>
-
+            
+            {% if not request.GET.seccion or request.GET.seccion == 'datos' %}
             <!-- DATOS PERSONALES -->
-            <section class="admin-section" id="datos">
+            <section class="admin-section">
                 <div class="section-header-admin">
                     <h2>👤 Datos Personales</h2>
-                    <p>Información básica, foto y datos de contacto.</p>
+                    <p>Gestiona tu información personal y de contacto</p>
                 </div>
+                
                 <div class="admin-card">
-                    <div class="card-info">
-                        <p>Edita tu información personal y foto de perfil.</p>
+                    {% if datos %}
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <div style="background: var(--fondo-input); padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(79, 209, 197, 0.2);">
+                            <div style="color: var(--texto-gris-medio); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">NOMBRE COMPLETO</div>
+                            <div style="color: var(--texto-blanco); font-size: 1.1rem; font-weight: 600;">{{ datos.nombres }} {{ datos.apellidos }}</div>
+                        </div>
+                        
+                        {% if datos.numerocedula %}
+                        <div style="background: var(--fondo-input); padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(79, 209, 197, 0.2);">
+                            <div style="color: var(--texto-gris-medio); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">CÉDULA</div>
+                            <div style="color: var(--texto-blanco); font-size: 1.1rem; font-weight: 600;">{{ datos.numerocedula }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if datos.nacionalidad %}
+                        <div style="background: var(--fondo-input); padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(79, 209, 197, 0.2);">
+                            <div style="color: var(--texto-gris-medio); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">NACIONALIDAD</div>
+                            <div style="color: var(--texto-blanco); font-size: 1.1rem; font-weight: 600;">{{ datos.nacionalidad }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if datos.direcciondomiciliaria %}
+                        <div style="background: var(--fondo-input); padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(79, 209, 197, 0.2);">
+                            <div style="color: var(--texto-gris-medio); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">UBICACIÓN</div>
+                            <div style="color: var(--texto-blanco); font-size: 1.1rem; font-weight: 600;">{{ datos.direcciondomiciliaria }}</div>
+                        </div>
+                        {% endif %}
                     </div>
+                    {% endif %}
+                    
                     <div class="btn-group">
-                        <a href="{% url 'agregar_datos' %}" class="btn-admin btn-add">➕ Agregar</a>
-                        <a href="{% url 'editar_datos' %}" class="btn-admin btn-edit">✏️ Editar</a>
+                        <a href="{% url 'agregar_datos' %}" class="btn-add">➕ Agregar Datos</a>
+                        <a href="{% url 'editar_datos' %}" class="btn-edit">✏️ Editar Datos</a>
                     </div>
                 </div>
             </section>
+            {% endif %}
 
+            {% if request.GET.seccion == 'experiencia' %}
             <!-- EXPERIENCIA LABORAL -->
-            <section class="admin-section" id="experiencia">
+            <section class="admin-section">
                 <div class="section-header-admin">
                     <h2>💼 Experiencia Laboral</h2>
-                    <p>Registra tu experiencia profesional.</p>
+                    <p>Gestiona tu trayectoria profesional</p>
                 </div>
+                
                 <div class="admin-card">
                     <div class="btn-group">
-                        <a href="{% url 'agregar_experiencia' %}" class="btn-admin btn-add">➕ Agregar</a>
+                        <a href="{% url 'agregar_experiencia' %}" class="btn-add">➕ Agregar Experiencia</a>
                     </div>
+                    
                     {% if experiencias %}
                     <div class="items-list">
                         {% for exp in experiencias %}
                         <div class="item-row">
                             <div class="item-info">
                                 <h4>{{ exp.cargo }}</h4>
-                                <p>{{ exp.empresa }}</p>
+                                <p>{{ exp.empresa }} • {{ exp.fechainicio|date:"m/Y" }} - {% if exp.fechafin %}{{ exp.fechafin|date:"m/Y" }}{% else %}Actual{% endif %}</p>
                             </div>
                             <a href="{% url 'editar_experiencia_laboral' exp.idexperiencia %}" class="btn-item-edit">✏️ Editar</a>
                         </div>
@@ -97,24 +142,28 @@
                     {% endif %}
                 </div>
             </section>
+            {% endif %}
 
-            <!-- CURSOS Y CAPACITACIONES -->
-            <section class="admin-section" id="cursos">
+            {% if request.GET.seccion == 'cursos' %}
+            <!-- CURSOS -->
+            <section class="admin-section">
                 <div class="section-header-admin">
-                    <h2>🎓 Cursos y Capacitaciones</h2>
-                    <p>Registra tus cursos, certificaciones y capacitaciones.</p>
+                    <h2>🎓 Cursos Realizados</h2>
+                    <p>Gestiona tus capacitaciones y certificaciones</p>
                 </div>
+                
                 <div class="admin-card">
                     <div class="btn-group">
-                        <a href="{% url 'agregar_curso' %}" class="btn-admin btn-add">➕ Agregar</a>
+                        <a href="{% url 'agregar_curso' %}" class="btn-add">➕ Agregar Curso</a>
                     </div>
+                    
                     {% if cursos %}
                     <div class="items-list">
                         {% for curso in cursos %}
                         <div class="item-row">
                             <div class="item-info">
                                 <h4>{{ curso.nombrecurso }}</h4>
-                                <p>{{ curso.entidadpatrocinadora }}</p>
+                                <p>{{ curso.entidadpatrocinadora }}{% if curso.fechainicio %} • {{ curso.fechainicio|date:"Y" }}{% endif %}</p>
                             </div>
                             <a href="{% url 'editar_curso' curso.idcurso %}" class="btn-item-edit">✏️ Editar</a>
                         </div>
@@ -125,79 +174,28 @@
                     {% endif %}
                 </div>
             </section>
+            {% endif %}
 
-            <!-- PRODUCTOS ACADÉMICOS -->
-            <section class="admin-section" id="productos-academicos">
-                <div class="section-header-admin">
-                    <h2>📚 Productos Académicos</h2>
-                    <p>Publicaciones, artículos y trabajos académicos.</p>
-                </div>
-                <div class="admin-card">
-                    <div class="btn-group">
-                        <a href="{% url 'agregar_producto_academico' %}" class="btn-admin btn-add">➕ Agregar</a>
-                    </div>
-                    {% if productos_academicos %}
-                    <div class="items-list">
-                        {% for prod in productos_academicos %}
-                        <div class="item-row">
-                            <div class="item-info">
-                                <h4>{{ prod.nombreproducto }}</h4>
-                                <p>{{ prod.tiposproducto }}</p>
-                            </div>
-                            <a href="{% url 'editar_producto_academico' prod.idproducto %}" class="btn-item-edit">✏️ Editar</a>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p class="empty-message">No hay productos académicos registrados</p>
-                    {% endif %}
-                </div>
-            </section>
-
-            <!-- PRODUCTOS LABORALES -->
-            <section class="admin-section" id="productos-laborales">
-                <div class="section-header-admin">
-                    <h2>🚀 Productos Laborales</h2>
-                    <p>Proyectos y trabajos realizados profesionalmente.</p>
-                </div>
-                <div class="admin-card">
-                    <div class="btn-group">
-                        <a href="{% url 'agregar_producto_laboral' %}" class="btn-admin btn-add">➕ Agregar</a>
-                    </div>
-                    {% if productos_laborales %}
-                    <div class="items-list">
-                        {% for prod in productos_laborales %}
-                        <div class="item-row">
-                            <div class="item-info">
-                                <h4>{{ prod.nombreproducto }}</h4>
-                            </div>
-                            <a href="{% url 'editar_producto_laboral' prod.idproducto %}" class="btn-item-edit">✏️ Editar</a>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p class="empty-message">No hay productos laborales registrados</p>
-                    {% endif %}
-                </div>
-            </section>
-
+            {% if request.GET.seccion == 'reconocimientos' %}
             <!-- RECONOCIMIENTOS -->
-            <section class="admin-section" id="reconocimientos">
+            <section class="admin-section">
                 <div class="section-header-admin">
                     <h2>🏆 Reconocimientos</h2>
-                    <p>Premios, distinciones y menciones honoríficas.</p>
+                    <p>Gestiona tus premios y distinciones</p>
                 </div>
+                
                 <div class="admin-card">
                     <div class="btn-group">
-                        <a href="{% url 'agregar_reconocimiento' %}" class="btn-admin btn-add">➕ Agregar</a>
+                        <a href="{% url 'agregar_reconocimiento' %}" class="btn-add">➕ Agregar Reconocimiento</a>
                     </div>
+                    
                     {% if reconocimientos %}
                     <div class="items-list">
                         {% for rec in reconocimientos %}
                         <div class="item-row">
                             <div class="item-info">
                                 <h4>{{ rec.tiporeconocimiento }}</h4>
-                                <p>{{ rec.entidadpatrocinadora }}</p>
+                                <p>{{ rec.entidadpatrocinadora }}{% if rec.fechareconocimiento %} • {{ rec.fechareconocimiento|date:"Y" }}{% endif %}</p>
                             </div>
                             <a href="{% url 'editar_reconocimiento' rec.idreconocimiento %}" class="btn-item-edit">✏️ Editar</a>
                         </div>
@@ -208,17 +206,85 @@
                     {% endif %}
                 </div>
             </section>
+            {% endif %}
 
-            <!-- VENTAS -->
-            <section class="admin-section" id="ventas">
+            {% if request.GET.seccion == 'academicos' %}
+            <!-- PRODUCTOS ACADÉMICOS -->
+            <section class="admin-section">
                 <div class="section-header-admin">
-                    <h2>🛍️ Venta de Garage</h2>
-                    <p>Gestiona tus productos en venta.</p>
+                    <h2>📚 Productos Académicos</h2>
+                    <p>Gestiona tus publicaciones y trabajos académicos</p>
                 </div>
+                
                 <div class="admin-card">
                     <div class="btn-group">
-                        <a href="{% url 'agregar_venta' %}" class="btn-admin btn-add">➕ Agregar</a>
+                        <a href="{% url 'agregar_producto_academico' %}" class="btn-add">➕ Agregar Producto</a>
                     </div>
+                    
+                    {% if productos_academicos %}
+                    <div class="items-list">
+                        {% for prod in productos_academicos %}
+                        <div class="item-row">
+                            <div class="item-info">
+                                <h4>{{ prod.nombreproducto }}</h4>
+                                <p>{{ prod.tiposproducto }}{% if prod.fechapublicacion %} • {{ prod.fechapublicacion|date:"Y" }}{% endif %}</p>
+                            </div>
+                            <a href="{% url 'editar_producto_academico' prod.idproducto %}" class="btn-item-edit">✏️ Editar</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="empty-message">No hay productos académicos registrados</p>
+                    {% endif %}
+                </div>
+            </section>
+            {% endif %}
+
+            {% if request.GET.seccion == 'laborales' %}
+            <!-- PRODUCTOS LABORALES -->
+            <section class="admin-section">
+                <div class="section-header-admin">
+                    <h2>💻 Productos Laborales</h2>
+                    <p>Gestiona tus proyectos y trabajos profesionales</p>
+                </div>
+                
+                <div class="admin-card">
+                    <div class="btn-group">
+                        <a href="{% url 'agregar_producto_laboral' %}" class="btn-add">➕ Agregar Producto</a>
+                    </div>
+                    
+                    {% if productos_laborales %}
+                    <div class="items-list">
+                        {% for prod in productos_laborales %}
+                        <div class="item-row">
+                            <div class="item-info">
+                                <h4>{{ prod.nombreproducto }}</h4>
+                                <p>Producto laboral</p>
+                            </div>
+                            <a href="{% url 'editar_producto_laboral' prod.idproducto %}" class="btn-item-edit">✏️ Editar</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="empty-message">No hay productos laborales registrados</p>
+                    {% endif %}
+                </div>
+            </section>
+            {% endif %}
+
+            {% if request.GET.seccion == 'ventas' %}
+            <!-- VENTA GARAGE -->
+            <section class="admin-section">
+                <div class="section-header-admin">
+                    <h2>🛒 Venta Garage</h2>
+                    <p>Gestiona tus productos en venta</p>
+                </div>
+                
+                <div class="admin-card">
+                    <div class="btn-group">
+                        <a href="{% url 'agregar_venta' %}" class="btn-add">➕ Agregar Producto</a>
+                    </div>
+                    
                     {% if ventas %}
                     <div class="items-list">
                         {% for venta in ventas %}
@@ -236,6 +302,7 @@
                     {% endif %}
                 </div>
             </section>
+            {% endif %}
 
         </div>
     </main>

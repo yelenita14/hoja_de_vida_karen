@@ -1,14 +1,15 @@
 import os
 import base64
 import tempfile
-import pymupdf as fitz
-from weasyprint import HTML, CSS
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
+from django.db import IntegrityError
+from django.utils import timezone
+from datetime import datetime
 from django.http import HttpResponse
 from datetime import datetime
 from django.contrib import messages
@@ -16,48 +17,27 @@ from .models import DatosPersonales, ExperienciaLaboral, CursosRealizados, Recon
 
 # Vista para mostrar la hoja de vida sin iniciar sesión
 def mi_hoja_vida(request):
-    # Primero intenta buscar un perfil activo
+    # Intentamos traer el perfil marcado como activo
     datos = DatosPersonales.objects.filter(perfilactivo=1).first()
     
-    # Si no hay perfil activo, busca el último perfil creado
+    # Si no hay uno activo, traemos el último registro creado para que NO salga vacío
     if not datos:
         datos = DatosPersonales.objects.order_by('-idperfil').first()
     
-    # Si definitivamente no hay ningún perfil en la base de datos
+    # Si la base de datos está totalmente vacía, mostramos un mensaje amigable
     if not datos:
         return render(request, 'hojavida/mi_hoja_vida.html', {
-            'mensaje': 'No hay datos de perfil. Por favor, crea uno primero.'
+            'mensaje_error': 'Todavía no se han cargado datos en el sistema.'
         })
 
-    experiencias = ExperienciaLaboral.objects.filter(
-        idperfilconqueestaactivo=datos.idperfil,
-        activarparaqueseveaenfront=1
-    )
-
-    cursos = CursosRealizados.objects.filter(
-        idperfilconqueestaactivo=datos.idperfil,
-        activarparaqueseveaenfront=1
-    )
-
-    reconocimientos = Reconocimientos.objects.filter(
-        idperfilconqueestaactivo=datos.idperfil,
-        activarparaqueseveaenfront=1
-    )
-
-    productos_academicos = ProductosAcademicos.objects.filter(
-        idperfilconqueestaactivo=datos.idperfil,
-        activarparaqueseveaenfront=1
-    )
-
-    productos_laborales = ProductosLaborales.objects.filter(
-        idperfilconqueestaactivo=datos.idperfil,
-        activarparaqueseveaenfront=1
-    )
-
-    ventas = VentaGarage.objects.filter(
-        idperfilconqueestaactivo=datos.idperfil,
-        activarparaqueseveaenfront=1
-    )
+    # Traemos la información relacionada usando el objeto 'datos' directamente
+    # Quitamos el filtro de 'activarparaqueseveaenfront' temporalmente para asegurar que veas algo
+    experiencias = ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=datos)
+    cursos = CursosRealizados.objects.filter(idperfilconqueestaactivo=datos)
+    reconocimientos = Reconocimientos.objects.filter(idperfilconqueestaactivo=datos)
+    productos_academicos = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=datos)
+    productos_laborales = ProductosLaborales.objects.filter(idperfilconqueestaactivo=datos)
+    ventas = VentaGarage.objects.filter(idperfilconqueestaactivo=datos)
 
     return render(request, 'hojavida/mi_hoja_vida.html', {
         'datos': datos,
@@ -99,12 +79,12 @@ def logout_view(request):
 def panel_admin(request):
     perfil = DatosPersonales.objects.filter(perfilactivo=1).first()
     
-    experiencias = ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil).order_by('-idexperiencia') if perfil else []
-    cursos = CursosRealizados.objects.filter(idperfilconqueestaactivo=perfil).order_by('-idcurso') if perfil else []
+    experiencias = ExperienciaLaboral.objects.filter(idperfilconqueestaactivo=perfil).order_by('-idexperiencialaboral') if perfil else []
+    cursos = CursosRealizados.objects.filter(idperfilconqueestaactivo=perfil).order_by('-idcursorealizado') if perfil else []
     reconocimientos = Reconocimientos.objects.filter(idperfilconqueestaactivo=perfil).order_by('-idreconocimiento') if perfil else []
-    productos_academicos = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil).order_by('-idproducto') if perfil else []
-    productos_laborales = ProductosLaborales.objects.filter(idperfilconqueestaactivo=perfil).order_by('-idproducto') if perfil else []
-    ventas = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil).order_by('-idventa') if perfil else []
+    productos_academicos = ProductosAcademicos.objects.filter(idperfilconqueestaactivo=perfil).order_by('-idproductoacademico') if perfil else []
+    productos_laborales = ProductosLaborales.objects.filter(idperfilconqueestaactivo=perfil).order_by('-idproductoslaborales') if perfil else []
+    ventas = VentaGarage.objects.filter(idperfilconqueestaactivo=perfil).order_by('-idventagarage') if perfil else []
     
     return render(request, 'hojavida/panel_admin.html', {
         'experiencias': experiencias,
@@ -119,89 +99,75 @@ def panel_admin(request):
 @login_required
 def agregar_datos(request):
     if request.method == 'POST':
-        from django.utils import timezone
-        from datetime import datetime
-        
-        # Validar fecha de nacimiento
         fechanacimiento_str = request.POST.get('fechanacimiento')
+        cedula = request.POST.get('numerocedula', '')
         error = None
-        
+
+        # 1. Validación de fecha
         if fechanacimiento_str:
-            fechanacimiento = datetime.strptime(fechanacimiento_str, '%Y-%m-%d').date()
-            if fechanacimiento > timezone.now().date():
-                error = 'La fecha de nacimiento no puede ser en el futuro.'
-        
+            try:
+                fechanacimiento = datetime.strptime(fechanacimiento_str, '%Y-%m-%d').date()
+                if fechanacimiento > timezone.now().date():
+                    error = 'La fecha de nacimiento no puede ser en el futuro.'
+            except ValueError:
+                error = 'Formato de fecha inválido.'
+
         if error:
             return render(request, 'hojavida/agregar_datos.html', {'error': error})
-        
-        nuevo_perfil = DatosPersonales(
-            nombres=request.POST.get('nombres', ''),
-            apellidos=request.POST.get('apellidos', ''),
-            nacionalidad=request.POST.get('nacionalidad', ''),
-            lugarnacimiento=request.POST.get('lugarnacimiento', ''),
-            fechanacimiento=fechanacimiento_str or None,
-            numerocedula=request.POST.get('numerocedula', ''),
-            sexo=request.POST.get('sexo', 'H'),
-            estadocivil=request.POST.get('estadocivil', ''),
-            licenciaconducir=request.POST.get('licenciaconducir', ''),
-            telefonofijo=request.POST.get('telefonofijo', ''),
-            direcciondomiciliaria=request.POST.get('direcciondomiciliaria', ''),
-            mostrar_experiencia=1 if request.POST.get('mostrar_experiencia') else 0,
-            mostrar_cursos=1 if request.POST.get('mostrar_cursos') else 0,
-            mostrar_Reconocimientos=1 if request.POST.get('mostrar_Reconocimientos') else 0,
-            mostrar_productos_academicos=1 if request.POST.get('mostrar_productos_academicos') else 0,
-            mostrar_productos_laborales=1 if request.POST.get('mostrar_productos_laborales') else 0,
-            mostrar_VentaGarage=1 if request.POST.get('mostrar_VentaGarage') else 0,
-            perfilactivo=1
-        )
-        if 'foto' in request.FILES:
-            nuevo_perfil.foto = request.FILES['foto']
-        nuevo_perfil.save()
-        return redirect('panel_admin')
+
+        # 2. Intento de guardado con manejo de duplicados
+        try:
+            nuevo_perfil = DatosPersonales(
+                nombres=request.POST.get('nombres', ''),
+                apellidos=request.POST.get('apellidos', ''),
+                nacionalidad=request.POST.get('nacionalidad', ''),
+                lugarnacimiento=request.POST.get('lugarnacimiento', ''),
+                fechanacimiento=fechanacimiento_str or None,
+                numerocedula=cedula,
+                sexo=request.POST.get('sexo', 'H'),
+                estadocivil=request.POST.get('estadocivil', ''),
+                licenciaconducir=request.POST.get('licenciaconducir', ''),
+                telefonofijo=request.POST.get('telefonofijo', ''),
+                direcciondomiciliaria=request.POST.get('direcciondomiciliaria', ''),
+                mostrar_experiencia=1 if request.POST.get('mostrar_experiencia') else 0,
+                mostrar_cursos=1 if request.POST.get('mostrar_cursos') else 0,
+                mostrar_reconocimientos=1 if request.POST.get('mostrar_Reconocimientos') else 0,
+                mostrar_productos_academicos=1 if request.POST.get('mostrar_productos_academicos') else 0,
+                mostrar_productos_laborales=1 if request.POST.get('mostrar_productos_laborales') else 0,
+                mostrar_venta_garage=1 if request.POST.get('mostrar_VentaGarage') else 0,
+                perfilactivo=1
+            )
+
+            if 'foto' in request.FILES:
+                nuevo_perfil.foto_perfil = request.FILES['foto'] # OJO: Verifica si es .foto o .foto_perfil según tu models.py
+
+            nuevo_perfil.save()
+            messages.success(request, "Datos personales guardados con éxito.")
+            return redirect('panel_admin')
+
+        except IntegrityError:
+            # AQUÍ SE CORRIGE EL ERROR DE LA IMAGEN
+            error = f"El número de cédula '{cedula}' ya está registrado. Si desea actualizar sus datos, utilice la opción de editar."
+            return render(request, 'hojavida/agregar_datos.html', {
+                'error': error,
+                'datos_previos': request.POST # Para que el usuario no pierda lo que escribió
+            })
 
     return render(request, 'hojavida/agregar_datos.html')
 
 @login_required
 def agregar_experiencia(request):
     if request.method == 'POST':
-        from django.utils import timezone
-        from datetime import datetime
-        
-        perfil = DatosPersonales.objects.filter(perfilactivo=1).first()
-        if perfil:
-            # Validar fechas
-            fechainicio_str = request.POST.get('fechainicio')
-            fechafin_str = request.POST.get('fechafin')
-            error = None
-            
-            if fechainicio_str:
-                fechainicio = datetime.strptime(fechainicio_str, '%Y-%m-%d').date()
-                if fechainicio > timezone.now().date():
-                    error = 'La fecha de inicio no puede ser en el futuro.'
-            
-            if fechafin_str and not error:
-                fechafin = datetime.strptime(fechafin_str, '%Y-%m-%d').date()
-                if fechafin > timezone.now().date():
-                    error = 'La fecha de fin no puede ser en el futuro.'
-                if fechainicio_str:
-                    fechainicio = datetime.strptime(fechainicio_str, '%Y-%m-%d').date()
-                    if fechainicio > fechafin:
-                        error = 'La fecha de fin debe ser posterior o igual a la fecha de inicio.'
-            
-            if error:
-                return render(request, 'hojavida/agregar_experiencia.html', {'error': error})
-            
-            ExperienciaLaboral.objects.create(
-                idperfilconqueestaactivo=perfil,
-                empresa=request.POST.get('empresa', ''),
-                cargo=request.POST.get('cargo', ''),
-                fechainicio=fechainicio_str or None,
-                fechafin=fechafin_str or None,
-                descripcion=request.POST.get('descripcion', ''),
-                activarparaqueseveaenfront=1 if request.POST.get('activarparaqueseveaenfront') else 0
-            )
+        ExperienciaLaboral.objects.create(
+            perfil_id=request.POST.get('perfil_id'),
+            nombrempresa=request.POST.get('nombrempresa'),
+            cargodesempenado=request.POST.get('cargodesempenado'),
+            descripcionfunciones=request.POST.get('descripcionfunciones'),
+            fechainicio=request.POST.get('fechainicio'),
+            fechafin=request.POST.get('fechafin'),
+        )
         return redirect('panel_admin')
-    
+
     return render(request, 'hojavida/agregar_experiencia.html')
 
 @login_required
@@ -215,11 +181,11 @@ def agregar_curso(request):
                 entidadpatrocinadora=request.POST.get('entidadpatrocinadora', ''),
                 fechainicio=request.POST.get('fechainicio') or None,
                 fechafin=request.POST.get('fechafin') or None,
-                descripcion=request.POST.get('descripcion', ''),
+                descripcioncurso=request.POST.get('descripcion', ''),
                 activarparaqueseveaenfront=1 if request.POST.get('activarparaqueseveaenfront') else 0
             )
             if 'archivo_certificado' in request.FILES:
-                curso.archivo_certificado = request.FILES['archivo_certificado']
+                curso.rutacertificado = request.FILES['archivo_certificado']
             curso.save()
         return redirect('panel_admin')
     
@@ -232,11 +198,11 @@ def agregar_producto_academico(request):
         if perfil:
             producto = ProductosAcademicos(
                 idperfilconqueestaactivo=perfil,
-                nombreproducto=request.POST.get('nombreproducto', ''),
-                tiposproducto=request.POST.get('tiposproducto', ''),
-                fechapublicacion=request.POST.get('fechapublicacion') or None,
+                nombrerecurso=request.POST.get('nombreproducto', ''),
+                clasificador=request.POST.get('tiposproducto', ''),
+                fecha_registro=request.POST.get('fechapublicacion') or None,
                 descripcion=request.POST.get('descripcion', ''),
-                enlace=request.POST.get('enlace', ''),
+                link=request.POST.get('enlace', ''),
                 activarparaqueseveaenfront=1 if request.POST.get('activarparaqueseveaenfront') else 0
             )
             if 'archivo' in request.FILES:
@@ -262,7 +228,7 @@ def agregar_reconocimiento(request):
                 activarparaqueseveaenfront=1 if request.POST.get('activarparaqueseveaenfront') else 0
             )
             if 'archivo_certificado' in request.FILES:
-                reconocimiento.archivo_certificado = request.FILES['archivo_certificado']
+                reconocimiento.rutacertificado = request.FILES['archivo_certificado']
             reconocimiento.save()
         return redirect('panel_admin')
     
@@ -272,62 +238,51 @@ def agregar_reconocimiento(request):
 @login_required
 def editar_datos(request):
     datos = DatosPersonales.objects.filter(perfilactivo=1).first()
-    
+
     if request.method == 'POST':
         from django.utils import timezone
         from datetime import datetime
-        
-        # Validar fecha de nacimiento
+
         fechanacimiento_str = request.POST.get('fechanacimiento')
         error = None
-        
+
         if fechanacimiento_str:
             fechanacimiento = datetime.strptime(fechanacimiento_str, '%Y-%m-%d').date()
             if fechanacimiento > timezone.now().date():
                 error = 'La fecha de nacimiento no puede ser en el futuro.'
-        
+
         if error:
             return render(request, 'hojavida/editar_datos.html', {'datos': datos, 'error': error})
-        
+
         if datos:
             datos.nombres = request.POST.get('nombres', datos.nombres)
             datos.apellidos = request.POST.get('apellidos', datos.apellidos)
             datos.nacionalidad = request.POST.get('nacionalidad', datos.nacionalidad)
             datos.lugarnacimiento = request.POST.get('lugarnacimiento', datos.lugarnacimiento)
-            
-            # Evitar modificar la fecha de nacimiento
+
             if fechanacimiento_str and not datos.fechanacimiento:
-                datos.fechanacimiento = fechanacimiento_str  # Solo actualizar si está vacía
+                datos.fechanacimiento = fechanacimiento_str
 
             datos.numerocedula = request.POST.get('numerocedula', datos.numerocedula)
             datos.sexo = request.POST.get('sexo', datos.sexo)
             datos.estadocivil = request.POST.get('estadocivil', datos.estadocivil)
             datos.licenciaconducir = request.POST.get('licenciaconducir', datos.licenciaconducir)
-            datos.telefonoconvencional = request.POST.get('telefonoconvencional', datos.telefonoconvencional)
             datos.telefonofijo = request.POST.get('telefonofijo', datos.telefonofijo)
-            datos.direcciontrabajo = request.POST.get('direcciontrabajo', datos.direcciontrabajo)
             datos.direcciondomiciliaria = request.POST.get('direcciondomiciliaria', datos.direcciondomiciliaria)
-            datos.sitioweb = request.POST.get('sitioweb', datos.sitioweb)
-            datos.mostrar_experiencia = 1 if request.POST.get('mostrar_experiencia') else 0
-            datos.mostrar_cursos = 1 if request.POST.get('mostrar_cursos') else 0
-            datos.mostrar_Reconocimientos = 1 if request.POST.get('mostrar_Reconocimientos') else 0
-            datos.mostrar_productos_academicos = 1 if request.POST.get('mostrar_productos_academicos') else 0
-            datos.mostrar_productos_laborales = 1 if request.POST.get('mostrar_productos_laborales') else 0
-            datos.mostrar_VentaGarage = 1 if request.POST.get('mostrar_VentaGarage') else 0
-            
+
             if 'foto' in request.FILES:
                 datos.foto = request.FILES['foto']
-                
+
             datos.save()
 
         return redirect('panel_admin')
-    
+
     return render(request, 'hojavida/editar_datos.html', {'datos': datos})
 
 @login_required
 def editar_experiencia(request, experiencia_id):
     perfil = DatosPersonales.objects.filter(perfilactivo=1).first()
-    experiencia = ExperienciaLaboral.objects.filter(idexperiencia=experiencia_id, idperfilconqueestaactivo=perfil).first() if perfil else None
+    experiencia = ExperienciaLaboral.objects.filter(idexperiencialaboral=experiencia_id, idperfilconqueestaactivo=perfil).first() if perfil else None
     
     if not experiencia:
         return redirect('panel_admin')
@@ -358,11 +313,11 @@ def editar_experiencia(request, experiencia_id):
         if error:
             return render(request, 'hojavida/editar_experiencia_laboral.html', {'experiencia': experiencia, 'error': error})
         
-        experiencia.empresa = request.POST.get('empresa', experiencia.empresa)
-        experiencia.cargo = request.POST.get('cargo', experiencia.cargo)
-        experiencia.fechainicio = fechainicio_str or experiencia.fechainicio
-        experiencia.fechafin = fechafin_str or experiencia.fechafin
-        experiencia.descripcion = request.POST.get('descripcion', experiencia.descripcion)
+        experiencia.nombrempresa = request.POST.get('empresa', experiencia.nombrempresa)
+        experiencia.cargodesempenado = request.POST.get('cargo', experiencia.cargodesempenado)
+        experiencia.fechainiciogestion = fechainicio_str or experiencia.fechainiciogestion
+        experiencia.fechafingestion = fechafin_str or experiencia.fechafingestion
+        experiencia.descripcionfunciones = request.POST.get('descripcion', experiencia.descripcionfunciones)
         experiencia.activarparaqueseveaenfront = 1 if request.POST.get('activarparaqueseveaenfront') else 0
         experiencia.save()
         return redirect('panel_admin')
@@ -372,7 +327,7 @@ def editar_experiencia(request, experiencia_id):
 @login_required
 def editar_curso(request, curso_id):
     perfil = DatosPersonales.objects.filter(perfilactivo=1).first()
-    curso = CursosRealizados.objects.filter(idcurso=curso_id, idperfilconqueestaactivo=perfil).first() if perfil else None
+    curso = CursosRealizados.objects.filter(idcursorealizado=curso_id, idperfilconqueestaactivo=perfil).first() if perfil else None
     
     if not curso:
         return redirect('panel_admin')
@@ -382,9 +337,9 @@ def editar_curso(request, curso_id):
         curso.entidadpatrocinadora = request.POST.get('entidadpatrocinadora', curso.entidadpatrocinadora)
         curso.fechainicio = request.POST.get('fechainicio') or curso.fechainicio
         curso.fechafin = request.POST.get('fechafin') or curso.fechafin
-        curso.descripcion = request.POST.get('descripcion', curso.descripcion)
+        curso.descripcioncurso = request.POST.get('descripcion', curso.descripcioncurso)
         if 'archivo_certificado' in request.FILES:
-            curso.archivo_certificado = request.FILES['archivo_certificado']
+            curso.rutacertificado = request.FILES['archivo_certificado']
         curso.activarparaqueseveaenfront = 1 if request.POST.get('activarparaqueseveaenfront') else 0
         curso.save()
         return redirect('panel_admin')
@@ -394,17 +349,17 @@ def editar_curso(request, curso_id):
 @login_required
 def editar_producto_academico(request, producto_id):
     perfil = DatosPersonales.objects.filter(perfilactivo=1).first()
-    producto = ProductosAcademicos.objects.filter(idproducto=producto_id, idperfilconqueestaactivo=perfil).first() if perfil else None
+    producto = ProductosAcademicos.objects.filter(idproductoacademico=producto_id, idperfilconqueestaactivo=perfil).first() if perfil else None
     
     if not producto:
         return redirect('panel_admin')
     
     if request.method == 'POST':
-        producto.nombreproducto = request.POST.get('nombreproducto', producto.nombreproducto)
-        producto.tiposproducto = request.POST.get('tiposproducto', producto.tiposproducto)
-        producto.fechapublicacion = request.POST.get('fechapublicacion') or producto.fechapublicacion
+        producto.nombrerecurso = request.POST.get('nombreproducto', producto.nombrerecurso)
+        producto.clasificador = request.POST.get('tiposproducto', producto.clasificador)
+        producto.fecha_registro = request.POST.get('fechapublicacion') or producto.fecha_registro
         producto.descripcion = request.POST.get('descripcion', producto.descripcion)
-        producto.enlace = request.POST.get('enlace', producto.enlace)
+        producto.link = request.POST.get('enlace', producto.link)
         if 'archivo' in request.FILES:
             producto.archivo = request.FILES['archivo']
         producto.activarparaqueseveaenfront = 1 if request.POST.get('activarparaqueseveaenfront') else 0
@@ -429,7 +384,7 @@ def editar_reconocimiento(request, reconocimiento_id):
         reconocimiento.nombrecontactoauspicia = request.POST.get('nombrecontactoauspicia', reconocimiento.nombrecontactoauspicia)
         reconocimiento.telefonocontactoauspicia = request.POST.get('telefonocontactoauspicia', reconocimiento.telefonocontactoauspicia)
         if 'archivo_certificado' in request.FILES:
-            reconocimiento.archivo_certificado = request.FILES['archivo_certificado']
+            reconocimiento.rutacertificado = request.FILES['archivo_certificado']
         reconocimiento.activarparaqueseveaenfront = 1 if request.POST.get('activarparaqueseveaenfront') else 0
         reconocimiento.save()
         return redirect('panel_admin')
@@ -448,8 +403,9 @@ def agregar_producto_laboral(request):
             idperfilconqueestaactivo=perfil,
             nombreproducto=request.POST.get('nombreproducto'),
             descripcion=request.POST.get('descripcion', ''),
-            enlace=request.POST.get('enlace', ''),
+            link=request.POST.get('enlace', ''),
             archivo=request.FILES.get('archivo'),
+            fechaproducto=request.POST.get('fechaproducto') or None,
             activarparaqueseveaenfront=1 if request.POST.get('activarparaqueseveaenfront') else 0
         )
         return redirect('panel_admin')
@@ -470,13 +426,11 @@ def agregar_venta(request):
             descripcion=request.POST.get('descripcion', ''),
             valordelbien=request.POST.get('valordelbien') or None,
             estadoproducto=request.POST.get('estadoproducto', ''),
-            fechapublicacion=request.POST.get('fechapublicacion') or None,
+            # fecha_publicacion se gestiona automáticamente en el modelo
             activarparaqueseveaenfront=1 if request.POST.get('activarparaqueseveaenfront') else 0
         )
-        if 'archivo' in request.FILES:
-            venta.archivo = request.FILES['archivo']
         if 'imagen' in request.FILES:
-            venta.imagen = request.FILES['imagen']
+            venta.imagen_producto = request.FILES['imagen']
         venta.save()
         return redirect('panel_admin')
     
@@ -485,7 +439,7 @@ def agregar_venta(request):
 @login_required
 def editar_producto_laboral(request, producto_id):
     perfil = DatosPersonales.objects.filter(perfilactivo=1).first()
-    producto = ProductosLaborales.objects.filter(idproducto=producto_id, idperfilconqueestaactivo=perfil).first() if perfil else None
+    producto = ProductosLaborales.objects.filter(idproductoslaborales=producto_id, idperfilconqueestaactivo=perfil).first() if perfil else None
     
     if not producto:
         return redirect('panel_admin')
@@ -493,7 +447,7 @@ def editar_producto_laboral(request, producto_id):
     if request.method == 'POST':
         producto.nombreproducto = request.POST.get('nombreproducto', producto.nombreproducto)
         producto.descripcion = request.POST.get('descripcion', producto.descripcion)
-        producto.enlace = request.POST.get('enlace', producto.enlace)
+        producto.link = request.POST.get('enlace', producto.link)
         if 'archivo' in request.FILES:
             producto.archivo = request.FILES['archivo']
         producto.activarparaqueseveaenfront = 1 if request.POST.get('activarparaqueseveaenfront') else 0
@@ -505,7 +459,7 @@ def editar_producto_laboral(request, producto_id):
 @login_required
 def editar_venta(request, venta_id):
     perfil = DatosPersonales.objects.filter(perfilactivo=1).first()
-    venta = VentaGarage.objects.filter(idventa=venta_id, idperfilconqueestaactivo=perfil).first() if perfil else None
+    venta = VentaGarage.objects.filter(idventagarage=venta_id, idperfilconqueestaactivo=perfil).first() if perfil else None
     
     if not venta:
         return redirect('panel_admin')
@@ -515,11 +469,9 @@ def editar_venta(request, venta_id):
         venta.descripcion = request.POST.get('descripcion', venta.descripcion)
         venta.valordelbien = request.POST.get('valordelbien') or venta.valordelbien
         venta.estadoproducto = request.POST.get('estadoproducto', venta.estadoproducto)
-        venta.fechapublicacion = request.POST.get('fechapublicacion') or venta.fechapublicacion
-        if 'archivo' in request.FILES:
-            venta.archivo = request.FILES['archivo']
+        # fecha_publicacion es automática; actualizar imagen si está presente
         if 'imagen' in request.FILES:
-            venta.imagen = request.FILES['imagen']
+            venta.imagen_producto = request.FILES['imagen']
         venta.activarparaqueseveaenfront = 1 if request.POST.get('activarparaqueseveaenfront') else 0
         venta.save()
         return redirect('panel_admin')
@@ -558,6 +510,16 @@ def descargar_cv_pdf(request):
         idperfilconqueestaactivo=datos.idperfil,
         activarparaqueseveaenfront=1
     )
+    # Importar librerías pesadas de forma perezosa
+    try:
+        import pymupdf as fitz
+    except Exception:
+        fitz = None
+    try:
+        from weasyprint import HTML, CSS
+    except Exception:
+        HTML = None
+        CSS = None
     
     # Convertir foto a base64
     foto_base64 = None
@@ -818,7 +780,7 @@ def descargar_cv_pdf(request):
 # Vistas para descargar certificados
 def descargar_certificado_curso(request, curso_id):
     perfil = DatosPersonales.objects.filter(perfilactivo=1).first()
-    curso = CursosRealizados.objects.filter(idcurso=curso_id, idperfilconqueestaactivo=perfil).first() if perfil else None
+    curso = CursosRealizados.objects.filter(idcursorealizado=curso_id, idperfilconqueestaactivo=perfil).first() if perfil else None
     
     if not curso or not curso.archivo_certificado:
         return HttpResponse("Certificado no encontrado", status=404)

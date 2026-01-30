@@ -1,0 +1,1 @@
+web: gunicorn hojavida_project.wsgi
